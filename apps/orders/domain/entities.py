@@ -1,3 +1,5 @@
+# apps/orders/domain/entities.py
+
 from dataclasses import dataclass
 from typing import List
 

@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from orders.services import OrderService
+from apps.orders.services import OrderService
 
 
 class CreateOrderView(LoginRequiredMixin, View):
@@ -13,10 +13,11 @@ class CreateOrderView(LoginRequiredMixin, View):
         payload = json.loads(request.body)
 
         service = OrderService()
-        order_id = service.create_order(
-            user=request.user,
-            data=payload
-        )
+        # apps/orders/views.py
+        try:
+            order_id = service.create_order(user=request.user, data=payload)
+        except ValueError as e:
+            return JsonResponse({"error": str(e)}, status=400)
 
         return JsonResponse(
             {"order_id": order_id},

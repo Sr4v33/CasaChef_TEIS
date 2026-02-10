@@ -1,10 +1,11 @@
 # apps/orders/services.py
-from orders.domain.order_builder import OrderBuilder
-from orders.infra.repositories import (
+from apps.orders.domain.order_builder import OrderBuilder
+from apps.orders.infra.repositories import (
     DjangoOrderRepository,
     DjangoProductionRepository,
 )
-from orders.infra.notifier_factory import NotifierFactory
+from apps.orders.infra.notifier_factory import NotifierFactory
+from django.db import transaction
 
 
 class OrderService:
@@ -15,19 +16,20 @@ class OrderService:
         self._notifier = NotifierFactory.create()
 
     def create_order(self, user, data) -> int:
-        builder = OrderBuilder(self._production_repo)
 
-        order_entity = (
-            builder
-            .for_user(user.id)
-            .with_items(data["items"])
-            .to_address(data["address"])
-            .for_date(data["date"])
-            .build()
-        )
+        with transaction.atomic():
+            builder = OrderBuilder(self._production_repo)
 
-        order_id = self._order_repo.save(order_entity)
+            order_entity = (
+                builder
+                .for_user(user.id)
+                .with_items(data["items"])
+                .to_address(data["address"])
+                .for_date(data["date"])
+                .build()
+            )
+
+            order_id = self._order_repo.save(order_entity)
 
         self._notifier.send_order_confirmation(order_id)
-
         return order_id

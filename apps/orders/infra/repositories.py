@@ -2,11 +2,11 @@
 from django.db import transaction
 from django.utils import timezone
 
-from orders.models import Order, OrderItem
-from production.models import DailyProduction
+from apps.orders.models import Order, OrderItem
+from apps.production.models import DailyProduction
 
-from orders.domain.ports import OrderRepository, ProductionRepository
-from orders.domain.entities import OrderEntity
+from apps.orders.domain.ports import OrderRepository, ProductionRepository
+from apps.orders.domain.entities import OrderEntity
 
 
 class DjangoProductionRepository(ProductionRepository):

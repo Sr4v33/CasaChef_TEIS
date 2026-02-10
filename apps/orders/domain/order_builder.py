@@ -1,3 +1,4 @@
+# apps/orders/domain/entities.py
 from .entities import OrderEntity, OrderItemEntity
 from .ports import ProductionRepository
 
@@ -10,8 +11,6 @@ class OrderBuilder:
         self._address = ''
         self._date = ''
 
-    # -------- Fluent interface --------
-
     def for_user(self, user_id: int):
         self._user_id = user_id
         return self
@@ -21,8 +20,8 @@ class OrderBuilder:
             self._items.append(
                 OrderItemEntity(
                     dish_id=it["dish_id"],
-                    quantity=it["qty"],
-                    unit_price=it["price"],
+                    quantity=it.get("quantity", it.get("qty")), # Robusto a ambos nombres
+                    unit_price=it.get("unit_price", it.get("price")),
                 )
             )
         return self
@@ -35,8 +34,6 @@ class OrderBuilder:
         self._date = date
         return self
 
-    # -------- Build --------
-
     def build(self) -> OrderEntity:
         self._validate_required_data()
         self._validate_and_reserve_production()
@@ -47,8 +44,6 @@ class OrderBuilder:
             date=self._date,
             items=self._items,
         )
-
-    # -------- Internal rules --------
 
     def _validate_required_data(self):
         if not self._user_id:
