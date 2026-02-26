@@ -43,12 +43,12 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     # Apps de dominio
-    'apps.cooks',
-    'apps.dishes',
+    #'apps.cooks',
+   # 'apps.dishes',
     'apps.orders',
-    'apps.production',
-    'apps.payments',
-    'apps.users',
+   # 'apps.production',
+    #'apps.payments',
+   # 'apps.users',
 
 ]
 
