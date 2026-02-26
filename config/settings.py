@@ -44,11 +44,11 @@ INSTALLED_APPS = [
 
     # Apps de dominio
     #'apps.cooks',
-   # 'apps.dishes',
+    'apps.dishes',
     'apps.orders',
-   # 'apps.production',
-    #'apps.payments',
-   # 'apps.users',
+    'apps.production',
+    'apps.payments',
+    'apps.users',
 
 ]
 
