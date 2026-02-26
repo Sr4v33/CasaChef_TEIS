@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
-class DishesConfig(AppConfig):
+class OrdersConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "apps.dishes"
-    label = "dishes"
+    name = "apps.orders"
+    label = "orders"
