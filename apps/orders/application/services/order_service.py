@@ -22,6 +22,7 @@ class OrderService:
                 .with_items(data["items"])
                 .to_address(data["address"])
                 .for_date(data["date"])
+                .orderNumber()
                 .build()
             )
 
@@ -29,3 +30,39 @@ class OrderService:
 
         self._notifier.send_order_confirmation(order_id)
         return order_id
+    
+    def calculateTotal(self):
+        total=sum(item.calculateSubtotal() for item in self.items.all())
+        self.total=total
+        return self.total
+    
+    def calculateSubtotal(self):
+        return self.quantity * self.price
+    
+    def confirm_order(self, order_id):
+        order = self._order_repo.get_by_id(order_id)
+        if not order:
+            raise ValueError("Orden no encontrada")
+        order.status = "CONFIRMED"
+        self._order_repo.update(order)
+        self._notifier.send_order_confirmed(order_id)
+    
+    def cancel_order(self, order_id):
+        order = self._order_repo.get_by_id(order_id)
+        if not order:
+            raise ValueError("Orden no encontrada")
+        order.status = "CANCELLED"
+        self._order_repo.update(order)
+        self._notifier.send_order_cancelled(order_id)
+
+    def validate_stock(self, order_id):
+        order = self._order_repo.get_by_id(order_id)
+        if not order:
+            raise ValueError("Orden no encontrada")
+        for item in order.items:
+            if not self._production_repo.check_stock(item.dish_id, item.quantity):
+                raise ValueError(f"Stock insuficiente para el plato {item.dish_id}")
+            
+#pending: assign cook
+            
+    

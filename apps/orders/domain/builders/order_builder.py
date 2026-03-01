@@ -2,7 +2,7 @@
 from ..entities.order import OrderEntity
 from ..entities.order_item import OrderItemEntity
 from ..ports.production_repository_port import ProductionRepository
-
+from random import randint
 
 class OrderBuilder:
     def __init__(self, production_repo: ProductionRepository):
@@ -25,6 +25,10 @@ class OrderBuilder:
                     unit_price=it.get("unit_price", it.get("price")),
                 )
             )
+        return self
+    
+    def orderNumber(self):
+        self._orderNumber = randint(100000, 999999)
         return self
 
     def to_address(self, address: str):
@@ -53,6 +57,7 @@ class OrderBuilder:
             raise ValueError("Items requeridos")
         if not self._date:
             raise ValueError("Fecha requerida")
+        
 
     def _validate_and_reserve_production(self):
         for item in self._items:
