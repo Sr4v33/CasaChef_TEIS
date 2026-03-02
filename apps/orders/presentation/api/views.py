@@ -6,7 +6,12 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
 from apps.orders.application.services.order_service import OrderService
-from apps.orders.domain.exceptions import OrderDomainError, InvalidOrderTransition
+from apps.orders.domain.exceptions import (
+    OrderDomainError,
+    OrderNotFoundError,
+    InvalidOrderTransition,
+    InsufficientProductionStock,
+)
 from apps.orders.infrastructure.repositories.django_order_repository import DjangoOrderRepository
 from apps.orders.infrastructure.repositories.django_production_repository import DjangoProductionRepository
 from apps.orders.infrastructure.factories.notifier_factory import NotifierFactory
@@ -17,7 +22,6 @@ from apps.orders.presentation.api.serializers import (
 
 
 def _build_service() -> OrderService:
-    """Factory local para inyectar dependencias en OrderService."""
     return OrderService(
         order_repo=DjangoOrderRepository(),
         production_repo=DjangoProductionRepository(),
@@ -26,10 +30,7 @@ def _build_service() -> OrderService:
 
 
 class OrderCreateView(APIView):
-    """POST /api/orders/
-    Crea una orden nueva para el usuario autenticado.
-    Reserva cupos de producción de forma atómica.
-    """
+    """POST /api/orders/ — Crea una orden y reserva cupos de producción."""
 
     permission_classes = [IsAuthenticated]
 
@@ -39,9 +40,7 @@ class OrderCreateView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         data = cast(Dict[str, Any], serializer.validated_data)
-        # Convertir la fecha a string para el builder
         data["date"] = str(data["date"])
-        # Normalizar claves de los ítems a lo que espera OrderBuilder
         data["items"] = [
             {
                 "dish_id":    item["dish_id"],
@@ -54,26 +53,24 @@ class OrderCreateView(APIView):
         service = _build_service()
         try:
             order_id = service.create_order(user=request.user, data=data)
-        except (OrderDomainError, ValueError) as exc:
+        except InsufficientProductionStock as exc:
+            return Response({"error": str(exc)}, status=status.HTTP_409_CONFLICT)
+        except ValueError as exc:
+            return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        except OrderDomainError as exc:
             return Response({"error": str(exc)}, status=status.HTTP_409_CONFLICT)
 
         return Response({"order_id": order_id}, status=status.HTTP_201_CREATED)
 
 
 class OrderDetailView(APIView):
-    """GET /api/orders/<order_id>/
-    Obtiene el detalle de una orden por su ID.
-    Solo accesible para el propietario.
-    """
+    """GET /api/orders/<order_id>/ — Detalle de una orden (solo propietario)."""
 
     permission_classes = [IsAuthenticated]
 
     def get(self, request, order_id: int):
         service = _build_service()
-        try:
-            order = service._order_repo.get_by_id(order_id)
-        except Exception:
-            order = None
+        order = service._order_repo.get_by_id(order_id)
 
         if order is None:
             return Response({"error": "Orden no encontrada"}, status=status.HTTP_404_NOT_FOUND)
@@ -81,14 +78,11 @@ class OrderDetailView(APIView):
         if order.user_id != request.user.id:
             return Response({"error": "No autorizado"}, status=status.HTTP_403_FORBIDDEN)
 
-        output = OrderOutputSerializer(order)
-        return Response(output.data, status=status.HTTP_200_OK)
+        return Response(OrderOutputSerializer(order).data, status=status.HTTP_200_OK)
 
 
 class OrderConfirmView(APIView):
-    """PATCH /api/orders/<order_id>/confirm/
-    Confirma una orden en estado PENDING.
-    """
+    """PATCH /api/orders/<order_id>/confirm/ — Confirma una orden PENDING."""
 
     permission_classes = [IsAuthenticated]
 
@@ -96,6 +90,8 @@ class OrderConfirmView(APIView):
         service = _build_service()
         try:
             service.confirm_order(order_id)
+        except OrderNotFoundError:
+            return Response({"error": "Orden no encontrada"}, status=status.HTTP_404_NOT_FOUND)
         except InvalidOrderTransition as exc:
             return Response({"error": str(exc)}, status=status.HTTP_409_CONFLICT)
         except OrderDomainError as exc:
@@ -105,9 +101,7 @@ class OrderConfirmView(APIView):
 
 
 class OrderCancelView(APIView):
-    """PATCH /api/orders/<order_id>/cancel/
-    Cancela una orden en estado PENDING o CONFIRMED.
-    """
+    """PATCH /api/orders/<order_id>/cancel/ — Cancela una orden PENDING o CONFIRMED."""
 
     permission_classes = [IsAuthenticated]
 
@@ -115,9 +109,34 @@ class OrderCancelView(APIView):
         service = _build_service()
         try:
             service.cancel_order(order_id)
+        except OrderNotFoundError:
+            return Response({"error": "Orden no encontrada"}, status=status.HTTP_404_NOT_FOUND)
         except InvalidOrderTransition as exc:
             return Response({"error": str(exc)}, status=status.HTTP_409_CONFLICT)
         except OrderDomainError as exc:
             return Response({"error": str(exc)}, status=status.HTTP_404_NOT_FOUND)
 
         return Response({"detail": f"Orden {order_id} cancelada"}, status=status.HTTP_200_OK)
+
+
+class OrderValidateStockView(APIView):
+    """GET /api/orders/<order_id>/validate-stock/ - Valida si la orden tiene stock de producción disponible para todos sus ítems.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, order_id: int):
+        service = _build_service()
+        try:
+            service.validate_stock(order_id)
+        except OrderNotFoundError:
+            return Response({"error": "Orden no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+        except OrderDomainError as exc:
+            # 409: stock insuficiente para al menos un ítem
+            return Response({"error": str(exc)}, status=status.HTTP_409_CONFLICT)
+
+        # 200: toda la orden tiene producción disponible
+        return Response(
+            {"detail": "Stock de producción disponible para todos los ítems"},
+            status=status.HTTP_200_OK,
+        )

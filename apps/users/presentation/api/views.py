@@ -4,7 +4,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from django.contrib.auth import authenticate, login
 
 from apps.users.domain.entities.user import User
 from apps.users.domain.entities.customer import CustomerProfile
@@ -15,7 +14,6 @@ from apps.users.presentation.api.serializers import (
     CookProfileSerializer,
     UserOutputSerializer,
 )
-
 
 # ─── Helper ──────────────────────────────────────────────────────────────────
 
@@ -28,21 +26,15 @@ def _domain_user_from_request(request) -> User:
         active=u.is_active,
     )
 
-
-# ─── Views ────────────────────────────────────────────────────────────────────
-
 class UserRegisterView(APIView):
-    """POST /api/users/register/
-
-    Registra un nuevo usuario usando el sistema de auth de Django.
-    No requiere autenticación previa.
-    """
+    """POST /api/users/register/ — Registra un usuario nuevo."""
 
     permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = RegisterUserSerializer(data=request.data)
         if not serializer.is_valid():
+            # 400: email malformado, password demasiado corta…
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         data = cast(Dict[str, Any], serializer.validated_data)
@@ -51,16 +43,18 @@ class UserRegisterView(APIView):
         UserModel = get_user_model()
 
         if UserModel.objects.filter(username=data["email"]).exists():
+            # 409: conflicto — ya existe un usuario con ese email (unicidad violada)
             return Response(
                 {"error": "Ya existe un usuario con ese email"},
                 status=status.HTTP_409_CONFLICT,
             )
 
         try:
-            # Valida reglas de dominio antes de persistir
-            domain_user = User(email=str(data["email"]))
+            # Validación de reglas de dominio antes de persistir
+            User(email=str(data["email"]))
         except ValueError as exc:
-            return Response({"error": str(exc)}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            # 400: el email no cumple la regla de negocio (sin @, etc.)
+            return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
         django_user = UserModel.objects.create_user(
             username=data["email"],
@@ -68,6 +62,7 @@ class UserRegisterView(APIView):
             password=data["password"],
         )
 
+        # 201: recurso usuario creado
         return Response(
             {"user_id": django_user.pk, "email": django_user.email},
             status=status.HTTP_201_CREATED,
@@ -75,10 +70,7 @@ class UserRegisterView(APIView):
 
 
 class UserMeView(APIView):
-    """GET /api/users/me/
-
-    Retorna la información del usuario autenticado como entidad de dominio.
-    """
+    """GET /api/users/me/ — Info del usuario autenticado."""
 
     permission_classes = [IsAuthenticated]
 
@@ -87,22 +79,19 @@ class UserMeView(APIView):
             email=request.user.email,
             active=request.user.is_active,
         )
-        output = UserOutputSerializer(domain_user)
-        return Response(output.data, status=status.HTTP_200_OK)
+        # 200: lectura exitosa
+        return Response(UserOutputSerializer(domain_user).data, status=status.HTTP_200_OK)
 
 
 class CustomerProfileView(APIView):
-    """POST /api/users/me/customer-profile/
-
-    Añade un perfil de cliente al usuario autenticado.
-    Valida las reglas de negocio de CustomerProfile.
-    """
+    """POST /api/users/me/customer-profile/ — Añade perfil de cliente."""
 
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = CustomerProfileSerializer(data=request.data)
         if not serializer.is_valid():
+            # 400: full_name vacío, teléfono demasiado corto…
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         data = cast(Dict[str, Any], serializer.validated_data)
@@ -113,8 +102,10 @@ class CustomerProfileView(APIView):
                 phone=str(data["phone"]),
             )
         except ValueError as exc:
-            return Response({"error": str(exc)}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            # 400: regla de negocio violada dentro de CustomerProfile
+            return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
+        # 201: perfil creado
         return Response(
             {"full_name": profile.full_name, "phone": profile.phone},
             status=status.HTTP_201_CREATED,
@@ -122,17 +113,14 @@ class CustomerProfileView(APIView):
 
 
 class CookProfileView(APIView):
-    """POST /api/users/me/cook-profile/
-
-    Añade un perfil de cocinero al usuario autenticado.
-    Valida las reglas de negocio de CookProfile.
-    """
+    """POST /api/users/me/cook-profile/ — Añade perfil de cocinero."""
 
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = CookProfileSerializer(data=request.data)
         if not serializer.is_valid():
+            # 400: name o specialty vacíos
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         data = cast(Dict[str, Any], serializer.validated_data)
@@ -143,8 +131,10 @@ class CookProfileView(APIView):
                 specialty=str(data["specialty"]),
             )
         except ValueError as exc:
-            return Response({"error": str(exc)}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            # 400: regla de negocio violada dentro de CookProfile
+            return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
+        # 201: perfil creado
         return Response(
             {"name": profile.name, "specialty": profile.specialty},
             status=status.HTTP_201_CREATED,

@@ -8,7 +8,12 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
 from apps.cart.application.services.cart_service import CartService
-from apps.cart.domain.exceptions import CartDomainError, CartIsEmptyError, ProductNotInCartError
+from apps.cart.domain.exceptions import (
+    CartDomainError,
+    CartIsEmptyError,
+    ProductNotInCartError,
+    InvalidCartItemData,
+)
 from apps.cart.infrastructure.repositories.django_cart_repository import DjangoCartRepository
 from apps.cart.infrastructure.repositories.product_stock_checker import ProductStockChecker
 from apps.cart.presentation.api.serializers import (
@@ -19,10 +24,6 @@ from apps.cart.presentation.api.serializers import (
 
 
 def _build_service() -> CartService:
-    """Factory local para construir el CartService con sus dependencias.
-
-    En un proyecto más grande esto lo haría un contenedor DI (ej. dependency-injector).
-    """
     return CartService(
         cart_repo=DjangoCartRepository(),
         stock_checker=ProductStockChecker(),
@@ -30,19 +31,18 @@ def _build_service() -> CartService:
 
 
 class CartDetailView(APIView):
-    """GET /cart/ — Obtiene el carrito activo del usuario autenticado."""
+    """GET /api/cart/ — Carrito activo del usuario autenticado."""
 
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         service = _build_service()
         cart = service.get_cart(customer_id=request.user.id)
-        serializer = CartOutputSerializer(cart)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(CartOutputSerializer(cart).data, status=status.HTTP_200_OK)
 
 
 class CartAddProductView(APIView):
-    """POST /cart/items/ — Añade un producto al carrito."""
+    """POST /api/cart/items/ — Añade un producto al carrito."""
 
     permission_classes = [IsAuthenticated]
 
@@ -51,10 +51,9 @@ class CartAddProductView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        # cast necesario: Pylance infiere validated_data como `empty | dict`
-        # hasta que is_valid() retorna True, pero no lo estrecha automáticamente.
         data = cast(Dict[str, Any], serializer.validated_data)
         service = _build_service()
+
         try:
             cart = service.add_product(
                 customer_id=request.user.id,
@@ -62,15 +61,16 @@ class CartAddProductView(APIView):
                 quantity=int(data["quantity"]),
                 unit_price=Decimal(str(data["unit_price"])),
             )
+        except InvalidCartItemData as exc:
+            return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         except CartDomainError as exc:
             return Response({"error": str(exc)}, status=status.HTTP_409_CONFLICT)
 
-        output = CartOutputSerializer(cart)
-        return Response(output.data, status=status.HTTP_200_OK)
+        return Response(CartOutputSerializer(cart).data, status=status.HTTP_200_OK)
 
 
 class CartRemoveProductView(APIView):
-    """DELETE /cart/items/ — Elimina un producto del carrito."""
+    """DELETE /api/cart/items/ — Elimina un producto del carrito."""
 
     permission_classes = [IsAuthenticated]
 
@@ -79,25 +79,22 @@ class CartRemoveProductView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        # cast necesario por el mismo motivo que en CartAddProductView
         data = cast(Dict[str, Any], serializer.validated_data)
         service = _build_service()
+
         try:
             cart = service.remove_product(
                 customer_id=request.user.id,
                 product_id=UUID(str(data["product_id"])),
             )
-        except ProductNotInCartError as exc:
-            return Response({"error": str(exc)}, status=status.HTTP_404_NOT_FOUND)
-        except CartIsEmptyError as exc:
+        except (ProductNotInCartError, CartIsEmptyError) as exc:
             return Response({"error": str(exc)}, status=status.HTTP_404_NOT_FOUND)
 
-        output = CartOutputSerializer(cart)
-        return Response(output.data, status=status.HTTP_200_OK)
+        return Response(CartOutputSerializer(cart).data, status=status.HTTP_200_OK)
 
 
 class CartTotalView(APIView):
-    """GET /cart/total/ — Retorna el total del carrito."""
+    """GET /api/cart/total/ — Total del carrito."""
 
     permission_classes = [IsAuthenticated]
 
@@ -112,7 +109,7 @@ class CartTotalView(APIView):
 
 
 class CartValidateView(APIView):
-    """POST /cart/validate/ — Valida disponibilidad de stock para el carrito."""
+    """POST /api/cart/validate/ — Valida stock para todos los ítems."""
 
     permission_classes = [IsAuthenticated]
 
@@ -120,10 +117,26 @@ class CartValidateView(APIView):
         service = _build_service()
         try:
             service.validate_availability(customer_id=request.user.id)
-        except (CartDomainError, CartIsEmptyError) as exc:
+        except CartIsEmptyError as exc:
+            return Response({"error": str(exc)}, status=status.HTTP_404_NOT_FOUND)
+        except CartDomainError as exc:
             return Response({"error": str(exc)}, status=status.HTTP_409_CONFLICT)
 
         return Response(
             {"detail": "Stock disponible para todos los productos"},
             status=status.HTTP_200_OK,
         )
+
+
+class CartClearView(APIView):
+    """DELETE /api/cart/ - Vacía el carrito del usuario autenticado."""
+
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        service = _build_service()
+        # clear_cart no lanza excepción si el carrito no existe — es idempotente
+        service.clear_cart(customer_id=request.user.id)
+
+        # 204: operación exitosa, no hay cuerpo que devolver
+        return Response(status=status.HTTP_204_NO_CONTENT)
