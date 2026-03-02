@@ -70,7 +70,8 @@ class OrderDetailView(APIView):
 
     def get(self, request, order_id: int):
         service = _build_service()
-        order = service._order_repo.get_by_id(order_id)
+        # Uso del método público del servicio, sin acceder a _order_repo
+        order = service.get_order(order_id)
 
         if order is None:
             return Response({"error": "Orden no encontrada"}, status=status.HTTP_404_NOT_FOUND)
@@ -120,8 +121,7 @@ class OrderCancelView(APIView):
 
 
 class OrderValidateStockView(APIView):
-    """GET /api/orders/<order_id>/validate-stock/ - Valida si la orden tiene stock de producción disponible para todos sus ítems.
-    """
+    """GET /api/orders/<order_id>/validate-stock/ — Valida stock de producción para todos los ítems."""
 
     permission_classes = [IsAuthenticated]
 
@@ -132,10 +132,8 @@ class OrderValidateStockView(APIView):
         except OrderNotFoundError:
             return Response({"error": "Orden no encontrada"}, status=status.HTTP_404_NOT_FOUND)
         except OrderDomainError as exc:
-            # 409: stock insuficiente para al menos un ítem
             return Response({"error": str(exc)}, status=status.HTTP_409_CONFLICT)
 
-        # 200: toda la orden tiene producción disponible
         return Response(
             {"detail": "Stock de producción disponible para todos los ítems"},
             status=status.HTTP_200_OK,

@@ -1,3 +1,4 @@
+import uuid
 from typing import cast, Dict, Any
 from decimal import Decimal
 from uuid import UUID
@@ -30,15 +31,29 @@ def _build_service() -> CartService:
     )
 
 
-class CartDetailView(APIView):
-    """GET /api/cart/ — Carrito activo del usuario autenticado."""
+def _customer_uuid(request) -> uuid.UUID:
+    # Convierte el PK entero del User de Django a UUID para que CartEntity lo acepte.
+    return uuid.UUID(int=request.user.id)
+
+
+class CartView(APIView):
+    """
+    GET    /api/cart/  — Carrito activo del usuario autenticado.
+    DELETE /api/cart/  — Vacía el carrito del usuario autenticado.
+    """
 
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         service = _build_service()
-        cart = service.get_cart(customer_id=request.user.id)
+        cart = service.get_cart(customer_id=_customer_uuid(request))
         return Response(CartOutputSerializer(cart).data, status=status.HTTP_200_OK)
+
+    def delete(self, request):
+        service = _build_service()
+        # clear_cart es idempotente — no lanza excepción si el carrito no existe
+        service.clear_cart(customer_id=_customer_uuid(request))
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CartAddProductView(APIView):
@@ -56,7 +71,7 @@ class CartAddProductView(APIView):
 
         try:
             cart = service.add_product(
-                customer_id=request.user.id,
+                customer_id=_customer_uuid(request),
                 product_id=UUID(str(data["product_id"])),
                 quantity=int(data["quantity"]),
                 unit_price=Decimal(str(data["unit_price"])),
@@ -70,7 +85,7 @@ class CartAddProductView(APIView):
 
 
 class CartRemoveProductView(APIView):
-    """DELETE /api/cart/items/ — Elimina un producto del carrito."""
+    """DELETE /api/cart/items/remove/ — Elimina un producto del carrito."""
 
     permission_classes = [IsAuthenticated]
 
@@ -84,7 +99,7 @@ class CartRemoveProductView(APIView):
 
         try:
             cart = service.remove_product(
-                customer_id=request.user.id,
+                customer_id=_customer_uuid(request),
                 product_id=UUID(str(data["product_id"])),
             )
         except (ProductNotInCartError, CartIsEmptyError) as exc:
@@ -101,7 +116,7 @@ class CartTotalView(APIView):
     def get(self, request):
         service = _build_service()
         try:
-            total = service.calculate_total(customer_id=request.user.id)
+            total = service.calculate_total(customer_id=_customer_uuid(request))
         except CartIsEmptyError as exc:
             return Response({"error": str(exc)}, status=status.HTTP_404_NOT_FOUND)
 
@@ -116,7 +131,7 @@ class CartValidateView(APIView):
     def post(self, request):
         service = _build_service()
         try:
-            service.validate_availability(customer_id=request.user.id)
+            service.validate_availability(customer_id=_customer_uuid(request))
         except CartIsEmptyError as exc:
             return Response({"error": str(exc)}, status=status.HTTP_404_NOT_FOUND)
         except CartDomainError as exc:
@@ -126,17 +141,3 @@ class CartValidateView(APIView):
             {"detail": "Stock disponible para todos los productos"},
             status=status.HTTP_200_OK,
         )
-
-
-class CartClearView(APIView):
-    """DELETE /api/cart/ - Vacía el carrito del usuario autenticado."""
-
-    permission_classes = [IsAuthenticated]
-
-    def delete(self, request):
-        service = _build_service()
-        # clear_cart no lanza excepción si el carrito no existe — es idempotente
-        service.clear_cart(customer_id=request.user.id)
-
-        # 204: operación exitosa, no hay cuerpo que devolver
-        return Response(status=status.HTTP_204_NO_CONTENT)

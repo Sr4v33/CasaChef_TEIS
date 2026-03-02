@@ -4,11 +4,13 @@ from apps.users.presentation.api.views import (
     UserMeView,
     CustomerProfileView,
     CookProfileView,
+    UserAddressListCreateView,
 )
 
 urlpatterns = [
-    path("register/",               UserRegisterView.as_view(),   name="user-register"),
-    path("me/",                     UserMeView.as_view(),          name="user-me"),
-    path("me/customer-profile/",    CustomerProfileView.as_view(), name="user-customer-profile"),
-    path("me/cook-profile/",        CookProfileView.as_view(),     name="user-cook-profile"),
+    path("register/",            UserRegisterView.as_view(),       name="user-register"),
+    path("me/",                  UserMeView.as_view(),              name="user-me"),
+    path("me/customer-profile/", CustomerProfileView.as_view(),     name="user-customer-profile"),
+    path("me/cook-profile/",     CookProfileView.as_view(),         name="user-cook-profile"),
+    path("me/addresses/",        UserAddressListCreateView.as_view(), name="user-addresses"),
 ]

@@ -1,5 +1,6 @@
 from decimal import Decimal
-from typing import Any, Mapping
+from typing import Any, Mapping, Optional
+from uuid import UUID
 
 from apps.payments.domain.entities.payment import PaymentEntity, PaymentMethod
 from apps.payments.domain.ports.payment_repository_port import PaymentRepositoryPort
@@ -9,10 +10,11 @@ from apps.payments.infrastructure.factories.payment_factory import PaymentFactor
 class PaymentService:
     """Service Layer para casos de uso de pago.
 
-    Separa la orquestación del framework y de la vista (testabilidad y portabilidad).
+    Expone métodos públicos para todos los casos de uso. Ninguna vista debe
+    acceder a _repo directamente: toda consulta pasa por este servicio.
     """
 
-    def __init__(self, repo: PaymentRepositoryPort):
+    def __init__(self, repo: PaymentRepositoryPort) -> None:
         self._repo = repo
 
     def pay_order(
@@ -23,18 +25,21 @@ class PaymentService:
         method: PaymentMethod,
         metadata: Mapping[str, Any] | None = None,
     ) -> PaymentEntity:
+        """Procesa el pago de una orden y lo persiste."""
         payment = PaymentEntity(method=method)
 
         processor = PaymentFactory.create()
         payment.process_payment(amount=amount, processor=processor, metadata=metadata)
 
-        # Aquí hace falta lógica de confirmación asincrónica dependiendo del proveedor.
+        # Confirmación inmediata (lógica asíncrona queda pendiente según proveedor)
         payment.confirm_payment()
 
-        # Persistencia (si aplica)
         payment = self._repo.save(payment)
-
-        # Aquí iría el vínculo order_id del modelo (cuando exista repositorio/mapper completo).
-        # Ej: self._repo.attach_to_order(payment_id=payment.payment_id, order_id=order_id)
-
         return payment
+
+    def get_payment(self, payment_id: UUID) -> Optional[PaymentEntity]:
+        """Retorna un pago por su UUID o None si no existe.
+
+        Las vistas deben usar este método en lugar de acceder a _repo directamente.
+        """
+        return self._repo.get_by_id(payment_id)

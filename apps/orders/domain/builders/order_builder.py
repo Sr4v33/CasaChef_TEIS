@@ -1,8 +1,8 @@
-# apps/orders/domain/entities.py
 from ..entities.order import OrderEntity
 from ..entities.order_item import OrderItemEntity
 from ..ports.production_repository_port import ProductionRepository
 from random import randint
+
 
 class OrderBuilder:
     def __init__(self, production_repo: ProductionRepository):
@@ -11,6 +11,7 @@ class OrderBuilder:
         self._items = []
         self._address = ''
         self._date = ''
+        self._orderNumber = 0
 
     def for_user(self, user_id: int):
         self._user_id = user_id
@@ -21,12 +22,12 @@ class OrderBuilder:
             self._items.append(
                 OrderItemEntity(
                     dish_id=it["dish_id"],
-                    quantity=it.get("quantity", it.get("qty")), # Robusto a ambos nombres
+                    quantity=it.get("quantity", it.get("qty")),
                     unit_price=it.get("unit_price", it.get("price")),
                 )
             )
         return self
-    
+
     def orderNumber(self):
         self._orderNumber = randint(100000, 999999)
         return self
@@ -41,6 +42,9 @@ class OrderBuilder:
 
     def build(self) -> OrderEntity:
         self._validate_required_data()
+        # Generar número de orden si aún no se generó
+        if not self._orderNumber:
+            self._orderNumber = randint(100000, 999999)
         self._validate_and_reserve_production()
 
         return OrderEntity(
@@ -48,6 +52,7 @@ class OrderBuilder:
             address=self._address,
             date=self._date,
             items=self._items,
+            order_number=str(self._orderNumber),  # ← se pasa order_number a la entidad
         )
 
     def _validate_required_data(self):
@@ -57,7 +62,6 @@ class OrderBuilder:
             raise ValueError("Items requeridos")
         if not self._date:
             raise ValueError("Fecha requerida")
-        
 
     def _validate_and_reserve_production(self):
         for item in self._items:

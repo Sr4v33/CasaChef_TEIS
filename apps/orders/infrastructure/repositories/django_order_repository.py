@@ -19,6 +19,7 @@ class DjangoOrderRepository(OrderRepository):
             address=order.address,
             status=order.status,
             orderNumber=getattr(order, "order_number", ""),
+            delivery_date=order.date if order.date else None,
         )
         for item in order.items:
             OrderItem.objects.create(
@@ -41,19 +42,21 @@ class DjangoOrderRepository(OrderRepository):
                 quantity=item.quantity,
                 unit_price=float(item.unit_price),
             )
-            for item in model.items.all() # type: ignore[attr-defined]
+            for item in model.items.all()  # type: ignore[attr-defined]
         ]
         return OrderEntity(
-            user_id=model.user_id,  # type: ignore[attr-defined]
+            order_id=model.pk,                                      # ← id real del modelo
+            order_number=model.orderNumber,
+            user_id=model.user_id,                                  # type: ignore[attr-defined]
             address=model.address,
-            date=str(model.created_at.date()),
+            date=str(model.delivery_date) if model.delivery_date else str(model.created_at.date()),
             items=items,
             status=model.status,
         )
 
     @transaction.atomic
     def update(self, order: OrderEntity) -> None:
-        Order.objects.filter(pk=getattr(order, "order_id", None)).update(
+        Order.objects.filter(pk=order.order_id).update(             # ← usa order_id real
             status=order.status,
             updated_at=timezone.now(),
         )

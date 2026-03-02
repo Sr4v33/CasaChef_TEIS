@@ -49,7 +49,8 @@ class ProductDetailView(APIView):
 
     def get(self, request, product_id):
         service = _build_service()
-        product = service._repo.get_by_id(product_id)
+        # Uso del método público del servicio, sin acceder a _repo
+        product = service.get_product(product_id)
 
         if product is None:
             return Response({"error": "Producto no encontrado"}, status=status.HTTP_404_NOT_FOUND)
@@ -58,7 +59,7 @@ class ProductDetailView(APIView):
 
 
 class ProductByNameView(APIView):
-    """GET /api/products/by-name/?name=<nombre> - Obtiene un producto por su nombre."""
+    """GET /api/products/by-name/?name=<nombre> — Obtiene un producto por su nombre."""
 
     def get(self, request):
         name = request.query_params.get("name", "").strip()
@@ -69,7 +70,7 @@ class ProductByNameView(APIView):
             )
 
         service = _build_service()
-        product = service._repo.get_by_name(name)
+        product = service.get_product_by_name(name)
 
         if product is None:
             return Response({"error": "Producto no encontrado"}, status=status.HTTP_404_NOT_FOUND)

@@ -20,13 +20,13 @@ from apps.payments.presentation.api.serializers import (
 
 
 def _build_service() -> PaymentService:
-    """Factory local para inyectar dependencias en PaymentService."""
+    """Construye el servicio con sus dependencias inyectadas."""
     return PaymentService(repo=DjangoPaymentRepository())
 
 
 class PayOrderView(APIView):
-    """POST /api/payments/
-    Procesa el pago de una orden existente.
+    """POST /api/payments/ — Procesa el pago de una orden existente.
+
     El procesador de pago se selecciona por Factory (env var PAYMENT_PROVIDER).
     """
 
@@ -46,28 +46,27 @@ class PayOrderView(APIView):
                 amount=data["amount"],
                 method=PaymentMethod(data["method"]),
             )
-        except (InvalidPaymentData, InvalidPaymentTransition) as exc:
-            return Response({"error": str(exc)}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        except InvalidPaymentData as exc:
+            return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        except InvalidPaymentTransition as exc:
+            return Response({"error": str(exc)}, status=status.HTTP_409_CONFLICT)
         except PaymentProcessingError as exc:
             return Response({"error": str(exc)}, status=status.HTTP_502_BAD_GATEWAY)
 
-        output = PaymentOutputSerializer(payment)
-        return Response(output.data, status=status.HTTP_201_CREATED)
+        return Response(PaymentOutputSerializer(payment).data, status=status.HTTP_201_CREATED)
 
 
 class PaymentDetailView(APIView):
-    """GET /api/payments/<payment_id>/
-    Obtiene el detalle de un pago por su UUID.
-    """
+    """GET /api/payments/<payment_id>/ — Obtiene el detalle de un pago por su UUID."""
 
     permission_classes = [IsAuthenticated]
 
     def get(self, request, payment_id):
         service = _build_service()
-        payment = service._repo.get_by_id(payment_id)
+        # Uso del método público del servicio, sin acceder a _repo
+        payment = service.get_payment(payment_id)
 
         if payment is None:
             return Response({"error": "Pago no encontrado"}, status=status.HTTP_404_NOT_FOUND)
 
-        output = PaymentOutputSerializer(payment)
-        return Response(output.data, status=status.HTTP_200_OK)
+        return Response(PaymentOutputSerializer(payment).data, status=status.HTTP_200_OK)

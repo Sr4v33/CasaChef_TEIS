@@ -1,0 +1,5 @@
+DEBUG = True
+SECRET_KEY=django-insecure-change-this
+PAYMENT_PROVIDER = 'MOCK'
+NOTIFIER = 'CONSOLE'
+ENV_TYPE=DEV
