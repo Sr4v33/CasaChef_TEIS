@@ -20,7 +20,8 @@ def _as_decimal(value: Any, field_name: str) -> Decimal:
 @dataclass(slots=True)
 class Product:
     """Entidad de dominio Product.
-    Debe encapsular reglas de negocio como `validar_stock()` y `calcular_descuento()` (no solo datos).
+
+    Encapsula reglas de negocio como `validate_stock()` y `calculate_discount()`.
     """
 
     name: str
@@ -51,26 +52,33 @@ class Product:
 
         if quantity > self.stock:
             raise InsufficientStock(
-                f"Stock insuficiente para '{self.name}'. Disponible={self.stock}, solicitado={quantity}"
+                f"Stock insuficiente para '{self.name}'. "
+                f"Disponible={self.stock}, solicitado={quantity}"
             )
 
-    def calculate_discount(self, customer: Any | None = None, *, policy: Optional[DiscountPolicyPort] = None) -> Decimal:
+    def calculate_discount(
+        self,
+        customer: Any | None = None,
+        *,
+        policy: Optional[DiscountPolicyPort] = None,
+    ) -> Decimal:
         """Calcula el descuento (en dinero) aplicable a este producto.
 
-        - Para cumplir SRP/OCP, la regla concreta debe vivir en una Policy (Strategy).
-
-          Así podemos cambiar/añadir descuentos sin modificar ProductEntity.
+        Sigue OCP/SRP: la regla de descuento vive en la Policy (Strategy),
+        no en la entidad. Para agregar nuevas reglas basta con implementar
+        DiscountPolicyPort sin modificar Product.
         """
         if policy is None:
             return Decimal("0")
 
-        # Aquí iría logica necesaria para la regla de descuento.
-        # Ejm: discount = policy.get_discount_amount(product=self, customer=customer)
+        # La regla de descuento vive en la política, no en la entidad (SRP/OCP)
+        discount = policy.get_discount_amount(product=self, customer=customer)
 
-        discount = _as_decimal(discount, "discount") #Marca error porque no se ha definido discount!!
+        discount = _as_decimal(discount, "discount")
         if discount < 0:
             raise InvalidProductData("El descuento no puede ser negativo")
-        # Regla de consistencia: el descuento no puede ser mayor al precio
+
+        # El descuento no puede superar el precio del producto
         return min(discount, self.price)
 
     def update_stock(self, quantity: int) -> None:
