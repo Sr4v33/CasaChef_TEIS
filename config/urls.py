@@ -12,6 +12,7 @@ Estructura:
 
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import TemplateView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -32,7 +33,8 @@ def api_root(request):
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/",          api_root),
-    path("", api_root),
+    # path("", api_root),
+    path("", TemplateView.as_view(template_name="index.html")),
     path("api/products/", include("apps.dishes.presentation.api.urls")),
     path("api/orders/",   include("apps.orders.presentation.api.urls")),
     path("api/users/",    include("apps.users.presentation.api.urls")),
