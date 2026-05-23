@@ -8,6 +8,7 @@ Estructura:
     /api/users/       → apps.users
     /api/cart/        → apps.cart
     /api/production/  → apps.production
+    /api/integrations/ → apps.integrations
 """
 
 from django.contrib import admin
@@ -28,6 +29,7 @@ def api_root(request):
         'payments':       base + 'payments/',
         'cart':           base + 'cart/',
         'production':     base + 'production/',
+        'integrations': base + 'integrations/',
     })
 
 urlpatterns = [
@@ -41,5 +43,6 @@ urlpatterns = [
     path("api/payments/", include("apps.payments.presentation.api.urls")),
     path("api/cart/",     include("apps.cart.presentation.api.urls")),
     path("api/production/", include("apps.production.presentation.api.urls")),
+    path("api/integrations/", include("apps.integrations.presentation.api.urls")),
     path("api/auth/",     include("rest_framework.urls")),
 ]

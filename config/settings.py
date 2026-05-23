@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'apps.payments',
     'apps.users',
     'apps.cart',
+    'apps.integrations',
 
 ]
 
@@ -151,3 +152,12 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.BrowsableAPIRenderer",
     ],
 }
+
+# ─── Integraciones Entregable 2 ───────────────────────────────────────────────
+# URL interna del microservicio Flask. En local se usa localhost:5001; en Docker
+# puede cambiarse por http://recommendations:5001.
+RECOMMENDATIONS_SERVICE_URL = os.getenv(
+    "RECOMMENDATIONS_SERVICE_URL",
+    "http://127.0.0.1:5001",
+)
+INTEGRATION_HTTP_TIMEOUT = float(os.getenv("INTEGRATION_HTTP_TIMEOUT", "3"))
