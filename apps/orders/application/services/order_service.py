@@ -6,6 +6,7 @@ from apps.orders.domain.exceptions import OrderDomainError, OrderNotFoundError
 from apps.orders.domain.ports.order_repository_port import OrderRepository
 from apps.orders.domain.ports.production_repository_port import ProductionRepository
 from apps.orders.infrastructure.factories.notifier_factory import Notifier
+from apps.orders.infrastructure.tasks.notification_tasks import send_order_notification
 from typing import Optional
 
 
@@ -48,6 +49,10 @@ class OrderService:
             order_id = self._order_repo.save(order_entity)
 
         self._notifier.send_order_confirmation(order_id)
+        try:
+            send_order_notification.delay(order_id, "CREATED")
+        except Exception:
+            pass
         return order_id
 
     def get_order(self, order_id: int) -> Optional[OrderEntity]:

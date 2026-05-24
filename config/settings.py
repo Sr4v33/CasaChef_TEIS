@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG") == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1").split(",")
 
 LOGIN_REDIRECT_URL = '/api/'
 
@@ -161,3 +161,10 @@ RECOMMENDATIONS_SERVICE_URL = os.getenv(
     "http://127.0.0.1:5001",
 )
 INTEGRATION_HTTP_TIMEOUT = float(os.getenv("INTEGRATION_HTTP_TIMEOUT", "3"))
+
+
+# ─── Celery ───────────────────────────────────────────────────────────────────
+CELERY_BROKER_URL    = os.getenv("REDIS_URL", "redis://redis:6379/0")
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_TASK_SERIALIZER   = "json"
+CELERY_ACCEPT_CONTENT    = ["json"]
