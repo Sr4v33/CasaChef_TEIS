@@ -1,4 +1,19 @@
 services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    expose: ["5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   django:
     build: .
     command: >
@@ -12,10 +27,13 @@ services:
                config.wsgi:application"
     volumes:
       - .:/app
-      - sqlite_data:/app/db_data
       - static_files:/app/staticfiles
     env_file: .env
-    depends_on: [redis]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     expose: ["8000"]
 
   celery:
@@ -24,7 +42,11 @@ services:
     volumes:
       - .:/app
     env_file: .env
-    depends_on: [redis, django]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   recommendations:
     build: ./microservices/recommendations
@@ -47,5 +69,5 @@ services:
     depends_on: [django, recommendations]
 
 volumes:
-  sqlite_data:
+  postgres_data:
   static_files:
