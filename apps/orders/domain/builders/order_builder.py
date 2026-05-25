@@ -1,6 +1,7 @@
 from ..entities.order import OrderEntity
 from ..entities.order_item import OrderItemEntity
 from ..ports.production_repository_port import ProductionRepository
+from django.utils.translation import gettext_lazy as _
 from random import randint
 
 
@@ -57,11 +58,11 @@ class OrderBuilder:
 
     def _validate_required_data(self):
         if not self._user_id:
-            raise ValueError("User requerido")
+            raise ValueError(_("Usuario requerido"))
         if not self._items:
-            raise ValueError("Items requeridos")
+            raise ValueError(_("Ítems requeridos"))
         if not self._date:
-            raise ValueError("Fecha requerida")
+            raise ValueError(_("Fecha requerida"))
 
     def _validate_and_reserve_production(self):
         for item in self._items:

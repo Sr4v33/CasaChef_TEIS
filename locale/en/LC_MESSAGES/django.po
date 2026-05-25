@@ -1,0 +1,387 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: CasaChef\n"
+"POT-Creation-Date: 2026-05-24 00:00+0000\n"
+"PO-Revision-Date: 2026-05-24 00:00+0000\n"
+"Last-Translator: Codex\n"
+"Language: en\n"
+"Language-Team: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "CasaChef — Panel de Pedidos"
+msgstr "CasaChef — Orders Dashboard"
+
+msgid "Panel de Pedidos"
+msgstr "Orders Dashboard"
+
+msgid "Idioma"
+msgstr "Language"
+
+msgid "Cerrar sesión"
+msgstr "Log out"
+
+msgid "API URL"
+msgstr "API URL"
+
+msgid "URL base del API"
+msgstr "API base URL"
+
+msgid "Catálogo"
+msgstr "Catalog"
+
+msgid "Nuevo pedido"
+msgstr "New order"
+
+msgid "Buscar pedido"
+msgstr "Find order"
+
+msgid "Producción"
+msgstr "Production"
+
+msgid "Acceder al sistema"
+msgstr "Sign in"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Contraseña"
+msgstr "Password"
+
+msgid "Iniciar sesión"
+msgstr "Sign in"
+
+msgid "¿Sin cuenta? Regístrate aquí"
+msgstr "No account yet? Sign up here"
+
+msgid "Mínimo 8 caracteres"
+msgstr "Minimum 8 characters"
+
+msgid "Crear cuenta"
+msgstr "Create account"
+
+msgid "Catálogo de platos"
+msgstr "Dish catalog"
+
+msgid "El catálogo se gestiona localmente en la sesión. Usa <strong>Buscar por nombre</strong> para cargar platos existentes del backend. El <strong>ID numérico</strong> asignado es el que debes usar como <code>dish_id</code> en producción y pedidos."
+msgstr "The catalog is managed locally in the session. Use <strong>Search by name</strong> to load existing dishes from the backend. The assigned <strong>numeric ID</strong> is the one you must use as <code>dish_id</code> in production and orders."
+
+msgid "Buscar por nombre"
+msgstr "Search by name"
+
+msgid "Ej: Bandeja paisa"
+msgstr "e.g. Bandeja paisa"
+
+msgid "Buscar"
+msgstr "Search"
+
+msgid "Agregar plato"
+msgstr "Add dish"
+
+msgid "Nuevo plato"
+msgstr "New dish"
+
+msgid "Nombre"
+msgstr "Name"
+
+msgid "Precio"
+msgstr "Price"
+
+msgid "Stock"
+msgstr "Stock"
+
+msgid "Descripción (opcional)"
+msgstr "Description (optional)"
+
+msgid "Descripción breve"
+msgstr "Short description"
+
+msgid "Guardar plato"
+msgstr "Save dish"
+
+msgid "Cancelar"
+msgstr "Cancel"
+
+msgid "Busca o agrega platos para comenzar"
+msgstr "Search or add dishes to get started"
+
+msgid "Selecciona los platos"
+msgstr "Select dishes"
+
+msgid "Haz clic en una tarjeta para agregar al pedido. El <code>dish_id</code> numérico debe coincidir con un registro de producción activo para la fecha elegida."
+msgstr "Click a card to add it to the order. The numeric <code>dish_id</code> must match an active production record for the selected date."
+
+msgid "Carga platos desde el catálogo primero"
+msgstr "Load dishes from the catalog first"
+
+msgid "Agregar ítem manualmente"
+msgstr "Add item manually"
+
+msgid "Usa esto si conoces el <code>dish_id</code> numérico directamente (la PK entera del plato en la base de datos)."
+msgstr "Use this if you already know the numeric <code>dish_id</code> directly (the dish integer PK in the database)."
+
+msgid "Dish ID (número)"
+msgstr "Dish ID (number)"
+
+msgid "Nombre (referencia)"
+msgstr "Name (reference)"
+
+msgid "Plato del día"
+msgstr "Daily special"
+
+msgid "Cantidad"
+msgstr "Quantity"
+
+msgid "Precio unitario"
+msgstr "Unit price"
+
+msgid "Agregar al pedido"
+msgstr "Add to order"
+
+msgid "Tu pedido"
+msgstr "Your order"
+
+msgid "El pedido está vacío"
+msgstr "The order is empty"
+
+msgid "Subtotal"
+msgstr "Subtotal"
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Dirección de entrega"
+msgstr "Delivery address"
+
+msgid "Calle 15 #45-78, Medellín, Antioquia"
+msgstr "15th Street #45-78, Medellin, Antioquia"
+
+msgid "Fecha de entrega"
+msgstr "Delivery date"
+
+msgid "Confirmar pedido"
+msgstr "Confirm order"
+
+msgid "Hacer otro pedido"
+msgstr "Place another order"
+
+msgid "ID del pedido"
+msgstr "Order ID"
+
+msgid "ID pedido"
+msgstr "Order ID"
+
+msgid "Estado"
+msgstr "Status"
+
+msgid "Fecha entrega"
+msgstr "Delivery date"
+
+msgid "Dirección"
+msgstr "Address"
+
+msgid "Dish ID"
+msgstr "Dish ID"
+
+msgid "Precio unit."
+msgstr "Unit price"
+
+msgid "Validar stock"
+msgstr "Validate stock"
+
+msgid "Registros de producción"
+msgstr "Production records"
+
+msgid "Cada registro define cuántas unidades de un plato están disponibles en una fecha. El <strong>Dish ID</strong> es la PK numérica (entera) del plato en la base de datos."
+msgstr "Each record defines how many units of a dish are available on a date. The <strong>Dish ID</strong> is the numeric (integer) PK of the dish in the database."
+
+msgid "Fecha"
+msgstr "Date"
+
+msgid "Filtrar"
+msgstr "Filter"
+
+msgid "Ver todos"
+msgstr "View all"
+
+msgid "Usa los filtros o \"Ver todos\""
+msgstr "Use the filters or \"View all\""
+
+msgid "Crear producción diaria"
+msgstr "Create daily production"
+
+msgid "El <strong>Dish ID</strong> debe ser el entero que la base de datos asignó al plato (visible en el admin de Django o con una consulta directa)."
+msgstr "The <strong>Dish ID</strong> must be the integer assigned by the database to the dish (visible in Django admin or with a direct query)."
+
+msgid "Dish ID (numérico)"
+msgstr "Dish ID (numeric)"
+
+msgid "Unidades disponibles"
+msgstr "Available units"
+
+msgid "Crear registro"
+msgstr "Create record"
+
+msgid "Ajustar cupos"
+msgstr "Adjust capacity"
+
+msgid "ID del registro de producción"
+msgstr "Production record ID"
+
+msgid "Nuevos cupos disponibles"
+msgstr "New available units"
+
+msgid "Aplicar ajuste"
+msgstr "Apply adjustment"
+
+msgid "Producto no encontrado"
+msgstr "Product not found"
+
+msgid "El parámetro 'name' es obligatorio"
+msgstr "The 'name' parameter is required"
+
+msgid "Registro de producción no encontrado"
+msgstr "Production record not found"
+
+msgid "La cantidad a reservar debe ser mayor a 0"
+msgstr "The quantity to reserve must be greater than 0"
+
+msgid "No hay suficientes cupos: solicitado=%(requested)s, disponible=%(available)s"
+msgstr "Not enough capacity: requested=%(requested)s, available=%(available)s"
+
+msgid "Los cupos disponibles no pueden ser negativos"
+msgstr "Available units cannot be negative"
+
+msgid "Ya existe un registro de producción para dish_id=%(dish_id)s en fecha=%(date)s"
+msgstr "A production record already exists for dish_id=%(dish_id)s on date=%(date)s"
+
+msgid "No existe producción con id=%(production_id)s"
+msgstr "No production record exists with id=%(production_id)s"
+
+msgid "Ya existe un usuario con el email '%(email)s'."
+msgstr "A user with email '%(email)s' already exists."
+
+msgid "Este usuario ya tiene un perfil de cliente."
+msgstr "This user already has a customer profile."
+
+msgid "Este usuario ya tiene un perfil de cocinero."
+msgstr "This user already has a cook profile."
+
+msgid "Usuario con id=%(user_id)s no encontrado."
+msgstr "User with id=%(user_id)s not found."
+
+msgid "Orden no encontrada"
+msgstr "Order not found"
+
+msgid "No autorizado"
+msgstr "Unauthorized"
+
+msgid "Orden %(order_id)s confirmada"
+msgstr "Order %(order_id)s confirmed"
+
+msgid "Orden %(order_id)s cancelada"
+msgstr "Order %(order_id)s canceled"
+
+msgid "Stock de producción disponible para todos los ítems"
+msgstr "Production stock is available for all items"
+
+msgid "Stock insuficiente para el plato %(dish_id)s"
+msgstr "Insufficient stock for dish %(dish_id)s"
+
+msgid "Orden %(order_id)s no encontrada."
+msgstr "Order %(order_id)s not found."
+
+msgid "Usuario requerido"
+msgstr "User is required"
+
+msgid "Ítems requeridos"
+msgstr "Items are required"
+
+msgid "Fecha requerida"
+msgstr "Date is required"
+
+msgid "Cupos insuficientes para el plato %(dish_id)s"
+msgstr "Insufficient capacity for dish %(dish_id)s"
+
+msgid "Pedido %(order_id)s recibido. Confirmación enviada."
+msgstr "Order %(order_id)s received. Confirmation sent."
+
+msgid "Pedido %(order_id)s confirmado."
+msgstr "Order %(order_id)s confirmed."
+
+msgid "Pedido %(order_id)s cancelado."
+msgstr "Order %(order_id)s canceled."
+
+msgid "Correo de confirmación enviado para el pedido %(order_id)s."
+msgstr "Confirmation email sent for order %(order_id)s."
+
+msgid "Correo de pedido confirmado enviado para %(order_id)s."
+msgstr "Confirmed-order email sent for %(order_id)s."
+
+msgid "Correo de pedido cancelado enviado para %(order_id)s."
+msgstr "Canceled-order email sent for %(order_id)s."
+
+msgid "Evento de pedido no soportado: %(event)s"
+msgstr "Unsupported order event: %(event)s"
+
+msgid "Notificación %(event)s procesada para pedido %(order_id)s (usuario=%(email)s, estado=%(status)s, entrega=%(delivery)s, total=%(total)s)."
+msgstr "Notification %(event)s processed for order %(order_id)s (user=%(email)s, status=%(status)s, delivery=%(delivery)s, total=%(total)s)."
+
+msgid "sin fecha"
+msgstr "no date"
+
+msgid "No se encontró el pedido %(order_id)s para el evento %(event)s."
+msgstr "Order %(order_id)s was not found for event %(event)s."
+
+msgid "Reporte diario actualizado para %(delivery_date)s: %(report)s"
+msgstr "Daily report updated for %(delivery_date)s: %(report)s"
+
+msgid "No se puede confirmar una orden en estado '%(status)s'"
+msgstr "An order in '%(status)s' status cannot be confirmed"
+
+msgid "La orden ya está cancelada"
+msgstr "The order is already canceled"
+
+msgid "%(field_name)s debe ser numérico"
+msgstr "%(field_name)s must be numeric"
+
+msgid "price no puede ser negativo"
+msgstr "price cannot be negative"
+
+msgid "stock debe ser un entero >= 0"
+msgstr "stock must be an integer >= 0"
+
+msgid "Cantidad debe ser un entero mayor a 0"
+msgstr "Quantity must be an integer greater than 0"
+
+msgid "Stock insuficiente para '%(product_name)s'. Disponible=%(available)s, solicitado=%(requested)s"
+msgstr "Insufficient stock for '%(product_name)s'. Available=%(available)s, requested=%(requested)s"
+
+msgid "El descuento no puede ser negativo"
+msgstr "The discount cannot be negative"
+
+msgid "%(field_name)s no puede estar vacío"
+msgstr "%(field_name)s cannot be empty"
+
+msgid "Correo electrónico inválido"
+msgstr "Invalid email address"
+
+msgid "El usuario ya tiene un perfil de cliente"
+msgstr "The user already has a customer profile"
+
+msgid "El usuario ya tiene un perfil de cocinero"
+msgstr "The user already has a cook profile"
+
+msgid "full_name no puede estar vacío"
+msgstr "full_name cannot be empty"
+
+msgid "Número de teléfono inválido"
+msgstr "Invalid phone number"
+
+msgid "name no puede estar vacío"
+msgstr "name cannot be empty"
+
+msgid "specialty no puede estar vacío"
+msgstr "specialty cannot be empty"

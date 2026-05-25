@@ -20,6 +20,7 @@ class DjangoOrderRepository(OrderRepository):
             status=order.status,
             orderNumber=getattr(order, "order_number", ""),
             delivery_date=order.date if order.date else None,
+            total=order.calculate_total(),
         )
         for item in order.items:
             OrderItem.objects.create(

@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from django.utils.translation import gettext as _
 
 from apps.production.application.services.production_service import ProductionService
 from apps.production.infrastructure.repositories.django_production_repository import DjangoProductionRepository
@@ -77,7 +78,7 @@ class ProductionDetailView(APIView):
         production = service.get_production(production_id)
         if production is None:
             return Response(
-                {"error": "Registro de producción no encontrado"},
+                {"error": _("Registro de producción no encontrado")},
                 status=status.HTTP_404_NOT_FOUND,
             )
         return Response(

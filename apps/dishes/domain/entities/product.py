@@ -4,6 +4,7 @@ import uuid
 from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Any, Optional
+from django.utils.translation import gettext_lazy as _
 
 from ..exceptions import InvalidProductData, InsufficientStock
 from ..ports.discount_policy_port import DiscountPolicyPort
@@ -13,7 +14,9 @@ def _as_decimal(value: Any, field_name: str) -> Decimal:
     try:
         d = value if isinstance(value, Decimal) else Decimal(str(value))
     except Exception as exc:  # pragma: no cover
-        raise InvalidProductData(f"{field_name} debe ser numérico") from exc
+        raise InvalidProductData(
+            _("%(field_name)s debe ser numérico") % {"field_name": field_name}
+        ) from exc
     return d
 
 
@@ -36,10 +39,10 @@ class Product:
         self.description = (self.description or "").strip()
         self.price = _as_decimal(self.price, "price")
         if self.price < 0:
-            raise InvalidProductData("price no puede ser negativo")
+            raise InvalidProductData(_("price no puede ser negativo"))
 
         if not isinstance(self.stock, int) or self.stock < 0:
-            raise InvalidProductData("stock debe ser un entero >= 0")
+            raise InvalidProductData(_("stock debe ser un entero >= 0"))
 
     # -----------------------------
     # Métodos de negocio (UML)
@@ -48,12 +51,19 @@ class Product:
     def validate_stock(self, quantity: int) -> None:
         """Valida que haya stock suficiente para una cantidad dada."""
         if not isinstance(quantity, int) or quantity <= 0:
-            raise InvalidProductData("Cantidad debe ser un entero mayor a 0")
+            raise InvalidProductData(_("Cantidad debe ser un entero mayor a 0"))
 
         if quantity > self.stock:
             raise InsufficientStock(
-                f"Stock insuficiente para '{self.name}'. "
-                f"Disponible={self.stock}, solicitado={quantity}"
+                _(
+                    "Stock insuficiente para '%(product_name)s'. "
+                    "Disponible=%(available)s, solicitado=%(requested)s"
+                )
+                % {
+                    "product_name": self.name,
+                    "available": self.stock,
+                    "requested": quantity,
+                }
             )
 
     def calculate_discount(
@@ -76,7 +86,7 @@ class Product:
 
         discount = _as_decimal(discount, "discount")
         if discount < 0:
-            raise InvalidProductData("El descuento no puede ser negativo")
+            raise InvalidProductData(_("El descuento no puede ser negativo"))
 
         # El descuento no puede superar el precio del producto
         return min(discount, self.price)
@@ -92,7 +102,10 @@ class Product:
 
     def _validate_non_empty(self, value: str, field_name: str) -> str:
         if not value or not value.strip():
-            raise InvalidProductData(f"{field_name} no puede estar vacío")
+            raise InvalidProductData(
+                _("%(field_name)s no puede estar vacío")
+                % {"field_name": field_name}
+            )
         return value.strip()
 
 

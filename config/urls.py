@@ -13,30 +13,41 @@ Estructura:
 
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import TemplateView
+from django.shortcuts import render
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.i18n import JavaScriptCatalog
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
+
+@ensure_csrf_cookie
+def index_view(request):
+    return render(request, "index.html")
+
 
 @api_view(['GET'])
 def api_root(request):
     base = request.build_absolute_uri('/api/')
     return Response({
-        'register':       base + 'users/register/',
-        'login':          base + 'auth/login/',
-        'addresses':      base + 'users/me/addresses/',
-        'products':       base + 'products/',
-        'orders':         base + 'orders/',
-        'payments':       base + 'payments/',
-        'cart':           base + 'cart/',
-        'production':     base + 'production/',
+        'register': base + 'users/register/',
+        'login': base + 'users/login/',
+        'logout': base + 'users/logout/',
+        'addresses': base + 'users/me/addresses/',
+        'products': base + 'products/',
+        'orders': base + 'orders/',
+        'payments': base + 'payments/',
+        'cart': base + 'cart/',
+        'production': base + 'production/',
         'integrations': base + 'integrations/',
     })
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("i18n/", include("django.conf.urls.i18n")),
+    path("jsi18n/", JavaScriptCatalog.as_view(), name="javascript-catalog"),
     path("api/",          api_root),
     # path("", api_root),
-    path("", TemplateView.as_view(template_name="index.html")),
+    path("", index_view),
     path("api/products/", include("apps.dishes.presentation.api.urls")),
     path("api/orders/",   include("apps.orders.presentation.api.urls")),
     path("api/users/",    include("apps.users.presentation.api.urls")),

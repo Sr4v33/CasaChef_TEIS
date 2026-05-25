@@ -9,6 +9,12 @@ class RegisterUserSerializer(serializers.Serializer):
     password = serializers.CharField(min_length=8, write_only=True)
 
 
+class LoginUserSerializer(serializers.Serializer):
+    """Valida la entrada para iniciar sesión con email y contraseña."""
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True, trim_whitespace=False)
+
+
 class CustomerProfileSerializer(serializers.Serializer):
     """Valida los datos del perfil de cliente."""
     full_name = serializers.CharField(max_length=200)
