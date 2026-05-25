@@ -437,14 +437,8 @@ msgstr "Testing only: enter the dish code; if it is in the loaded menu, name and
 msgid "Código del plato"
 msgstr "Dish code"
 
-msgid "Nombre (referencia)"
-msgstr "Name (reference)"
-
 msgid "Precio unitario (menú)"
 msgstr "Unit price (menu)"
-
-msgid "Agregar al pedido"
-msgstr "Add to order"
 
 msgid "Código plato"
 msgstr "Dish code"
@@ -454,6 +448,3 @@ msgstr "Capacity per date. Use the <strong>same numeric code</strong> shown in M
 
 msgid "El <strong>código del plato</strong> es el número de la tarjeta en Platos y menú (ej. 1, 2, 3)."
 msgstr "The <strong>dish code</strong> is the number on the card in Menu & dishes (e.g. 1, 2, 3)."
-
-msgid "Usa los filtros o \"Ver todos\""
-msgstr "Use the filters or \"View all\""
