@@ -175,3 +175,54 @@ msgstr "%s capacity units were registered for dish_id %s on %s."
 
 msgid "Cupos ajustados a %s."
 msgstr "Capacity adjusted to %s."
+
+msgid "Cliente"
+msgstr "Customer"
+
+msgid "Chef"
+msgstr "Chef"
+
+msgid "Operaciones"
+msgstr "Operations"
+
+msgid "Código"
+msgstr "Code"
+
+msgid "Stock en catálogo: %(stock)s uds."
+msgstr "Catalog stock: %(stock)s units"
+
+msgid "Selecciona fecha de entrega"
+msgstr "Select delivery date"
+
+msgid "Sin plan para esta fecha"
+msgstr "No plan for this date"
+
+msgid "Sin cupos disponibles"
+msgstr "No capacity available"
+
+msgid "Cupos disponibles: %(cupos)s"
+msgstr "Available capacity: %(cupos)s"
+
+msgid "Sesión iniciada, pero no se pudo cargar el menú. Recarga la página."
+msgstr "Signed in, but the menu could not be loaded. Reload the page."
+
+msgid "Selecciona primero la fecha de entrega"
+msgstr "Select the delivery date first"
+
+msgid "No hay plan del día para el código %(id)s el %(date)s. Pide al chef que cree producción."
+msgstr "No daily plan for code %(id)s on %(date)s. Ask the chef to create production."
+
+msgid "Sin cupos disponibles para esta fecha."
+msgstr "No capacity available for this date."
+
+msgid "Solo hay %(cupos)s cupo(s) disponible(s) para esta fecha."
+msgstr "Only %(cupos)s capacity unit(s) available for this date."
+
+msgid "Indica el código del plato"
+msgstr "Enter the dish code"
+
+msgid "No hay precio en el menú para ese código. Carga el plato en Platos y menú primero."
+msgstr "No menu price for that code. Load the dish in Menu & dishes first."
+
+msgid "El plan del día no cubre este pedido (fecha de entrega o cupos ajustados después de crear la orden)."
+msgstr "The daily plan does not cover this order (delivery date or capacity changed after the order was created)."

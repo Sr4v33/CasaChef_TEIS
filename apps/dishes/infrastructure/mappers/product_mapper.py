@@ -16,7 +16,6 @@ class ProductMapper:
     @staticmethod
     def to_model(entity: ProductEntity) -> dict:
         return {
-            "id": entity.product_id,
             "name": entity.name,
             "description": entity.description,
             "price": entity.price,

@@ -10,6 +10,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from apps.users.application.services.user_service import UserService
 from apps.users.domain.entities.user import User
 from apps.users.domain.exceptions import UserDomainError
+from apps.users.infrastructure.models.cook_model import CookModel
+from apps.users.infrastructure.models.customer_model import CustomerModel
+from apps.users.infrastructure.models.user_model import UserModel
 from apps.users.infrastructure.repositories.django_user_repository import DjangoUserRepository
 from apps.users.presentation.api.serializers import (
     RegisterUserSerializer,
@@ -25,6 +28,27 @@ from apps.users.presentation.api.serializers import (
 def _build_service() -> UserService:
     """Construye el servicio con sus dependencias inyectadas."""
     return UserService(repo=DjangoUserRepository())
+
+
+def _ui_role_for_user(user) -> str:
+    """Rol de interfaz (solo presentación): customer | chef | operations."""
+    try:
+        if user.is_staff or user.is_superuser:
+            return "operations"
+        email = (user.email or "").strip().lower()
+        if not email:
+            return "customer"
+        try:
+            profile_user = UserModel.objects.get(email__iexact=email)
+        except UserModel.DoesNotExist:
+            return "customer"
+        if CookModel.objects.filter(user=profile_user).exists():
+            return "chef"
+        if CustomerModel.objects.filter(user=profile_user).exists():
+            return "customer"
+        return "customer"
+    except Exception:
+        return "customer"
 
 
 class UserRegisterView(APIView):
@@ -76,7 +100,11 @@ class UserLoginView(APIView):
 
         login(request, user)
         return Response(
-            {"email": user.email, "active": user.is_active},
+            {
+                "email": user.email,
+                "active": user.is_active,
+                "ui_role": _ui_role_for_user(user),
+            },
             status=status.HTTP_200_OK,
         )
 

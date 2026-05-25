@@ -87,14 +87,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost',
+    'http://127.0.0.1',
+    'http://3.89.172.49',
+]
+
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_DB", "casachef"),
+        "USER": os.getenv("POSTGRES_USER", "casachef"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
+        "HOST": os.getenv("POSTGRES_HOST", "db"),
+        "PORT": os.getenv("POSTGRES_PORT", "5432"),
     }
 }
 
@@ -123,16 +133,16 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "es"
 
-LANGUAGES = [
-    ("es", _("Spanish")),
-    ("en", _("English")),
-]
-
 TIME_ZONE = "America/Bogota"
 
 USE_I18N = True
 
 USE_TZ = True
+
+LANGUAGES = [
+    ("es", "Español"),
+    ("en", "English"),
+]
 
 LOCALE_PATHS = [BASE_DIR / "locale"]
 
@@ -144,6 +154,7 @@ LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 365
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -172,6 +183,8 @@ RECOMMENDATIONS_SERVICE_URL = os.getenv(
     "RECOMMENDATIONS_SERVICE_URL",
     "http://127.0.0.1:5001",
 )
+ALLY_SERVICE_BASE_URL = os.getenv("ALLY_SERVICE_BASE_URL", "http://3.94.94.27")
+
 INTEGRATION_HTTP_TIMEOUT = float(os.getenv("INTEGRATION_HTTP_TIMEOUT", "3"))
 
 
@@ -180,3 +193,7 @@ CELERY_BROKER_URL    = os.getenv("REDIS_URL", "redis://redis:6379/0")
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_TASK_SERIALIZER   = "json"
 CELERY_ACCEPT_CONTENT    = ["json"]
+
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

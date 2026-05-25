@@ -80,13 +80,21 @@ class OrderService:
         self._queue_daily_report(order.date)
 
     def validate_stock(self, order_id: int) -> None:
-        """Verifica stock para todos los ítems sin reservar."""
+        """Verifica que el plan del día de la orden sigue cubriendo cada ítem."""
         order = self._get_order_or_raise(order_id)
+        if not order.date:
+            raise OrderDomainError(_("La orden no tiene fecha de entrega."))
+
         for item in order.items:
-            if not self._production_repo.check_stock(item.dish_id, item.quantity):
+            if not self._production_repo.check_stock(
+                item.dish_id, order.date, item.quantity
+            ):
                 raise OrderDomainError(
-                    _("Stock insuficiente para el plato %(dish_id)s")
-                    % {"dish_id": item.dish_id}
+                    _(
+                        "Sin plan o cupos insuficientes para el plato %(dish_id)s "
+                        "en la fecha %(date)s"
+                    )
+                    % {"dish_id": item.dish_id, "date": order.date}
                 )
 
     # ──────────────────────────────────────────────

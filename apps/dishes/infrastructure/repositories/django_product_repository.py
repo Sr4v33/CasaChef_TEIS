@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from apps.dishes.domain.entities.product import ProductEntity
@@ -28,3 +28,7 @@ class DjangoProductRepository(ProductRepositoryPort):
         except ProductModel.DoesNotExist:
             return None
         return ProductMapper.to_domain(m)
+
+    def list_active(self) -> List[ProductEntity]:
+        models = ProductModel.objects.filter(active=True).order_by("name")
+        return [ProductMapper.to_domain(m) for m in models]

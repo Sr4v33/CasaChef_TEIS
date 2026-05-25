@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Any, Optional
+from typing import Any, List, Optional
 from uuid import UUID
 
 from apps.dishes.domain.entities.product import ProductEntity
@@ -44,6 +44,10 @@ class ProductService:
     def get_product_by_name(self, name: str) -> Optional[ProductEntity]:
         """Retorna un producto por su nombre o None si no existe."""
         return self._repo.get_by_name(name)
+
+    def list_products(self) -> List[ProductEntity]:
+        """Lista los productos activos del catálogo."""
+        return self._repo.list_active()
 
     def price_after_discount(
         self,

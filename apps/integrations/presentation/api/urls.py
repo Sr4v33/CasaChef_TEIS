@@ -8,6 +8,7 @@ from apps.integrations.presentation.api.views import (
     IntegrationsRootView,
     MicroserviceHealthView,
     RecommendationsProxyView,
+    AllySystemInfoView
 )
 
 urlpatterns = [
@@ -18,4 +19,5 @@ urlpatterns = [
     path("ally-menu/", AllyMenuProxyView.as_view(), name="ally-menu-proxy"),
     path("country/<str:country_code>/", CountryContextProxyView.as_view(), name="country-context-proxy"),
     path("summary/", IntegrationSummaryProxyView.as_view(), name="integration-summary-proxy"),
+    path("ally-system-info/", AllySystemInfoView.as_view(), name="ally-system-info"),
 ]

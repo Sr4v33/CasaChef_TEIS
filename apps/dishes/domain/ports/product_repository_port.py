@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from ..entities.product import ProductEntity
@@ -15,4 +15,8 @@ class ProductRepositoryPort(ABC):
 
     @abstractmethod
     def get_by_name(self, name: str) -> Optional[ProductEntity]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def list_active(self) -> List[ProductEntity]:
         raise NotImplementedError
