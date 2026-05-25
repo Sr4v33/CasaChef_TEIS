@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from django.utils.translation import gettext as _
 
 from apps.orders.application.services.order_service import OrderService
 from apps.orders.domain.exceptions import (
@@ -14,7 +15,6 @@ from apps.orders.domain.exceptions import (
 )
 from apps.orders.infrastructure.repositories.django_order_repository import DjangoOrderRepository
 from apps.orders.infrastructure.repositories.django_production_repository import DjangoProductionRepository
-from apps.orders.infrastructure.factories.notifier_factory import NotifierFactory
 from apps.orders.presentation.api.serializers import (
     CreateOrderSerializer,
     OrderOutputSerializer,
@@ -25,7 +25,6 @@ def _build_service() -> OrderService:
     return OrderService(
         order_repo=DjangoOrderRepository(),
         production_repo=DjangoProductionRepository(),
-        notifier=NotifierFactory.create(),
     )
 
 
@@ -74,10 +73,16 @@ class OrderDetailView(APIView):
         order = service.get_order(order_id)
 
         if order is None:
-            return Response({"error": "Orden no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": _("Orden no encontrada")},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         if order.user_id != request.user.id:
-            return Response({"error": "No autorizado"}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"error": _("No autorizado")},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         return Response(OrderOutputSerializer(order).data, status=status.HTTP_200_OK)
 
@@ -92,13 +97,22 @@ class OrderConfirmView(APIView):
         try:
             service.confirm_order(order_id)
         except OrderNotFoundError:
-            return Response({"error": "Orden no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": _("Orden no encontrada")},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         except InvalidOrderTransition as exc:
             return Response({"error": str(exc)}, status=status.HTTP_409_CONFLICT)
         except OrderDomainError as exc:
             return Response({"error": str(exc)}, status=status.HTTP_404_NOT_FOUND)
 
-        return Response({"detail": f"Orden {order_id} confirmada"}, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "detail": _("Orden %(order_id)s confirmada")
+                % {"order_id": order_id}
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class OrderCancelView(APIView):
@@ -111,13 +125,22 @@ class OrderCancelView(APIView):
         try:
             service.cancel_order(order_id)
         except OrderNotFoundError:
-            return Response({"error": "Orden no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": _("Orden no encontrada")},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         except InvalidOrderTransition as exc:
             return Response({"error": str(exc)}, status=status.HTTP_409_CONFLICT)
         except OrderDomainError as exc:
             return Response({"error": str(exc)}, status=status.HTTP_404_NOT_FOUND)
 
-        return Response({"detail": f"Orden {order_id} cancelada"}, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "detail": _("Orden %(order_id)s cancelada")
+                % {"order_id": order_id}
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class OrderValidateStockView(APIView):
@@ -130,11 +153,14 @@ class OrderValidateStockView(APIView):
         try:
             service.validate_stock(order_id)
         except OrderNotFoundError:
-            return Response({"error": "Orden no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": _("Orden no encontrada")},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         except OrderDomainError as exc:
             return Response({"error": str(exc)}, status=status.HTTP_409_CONFLICT)
 
         return Response(
-            {"detail": "Stock de producción disponible para todos los ítems"},
+            {"detail": _("Stock de producción disponible para todos los ítems")},
             status=status.HTTP_200_OK,
         )

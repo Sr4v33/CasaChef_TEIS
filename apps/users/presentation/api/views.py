@@ -1,5 +1,7 @@
 from typing import cast, Dict, Any
 
+from django.contrib.auth import authenticate, login, logout
+from django.utils.translation import gettext_lazy as _
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,6 +13,7 @@ from apps.users.domain.exceptions import UserDomainError
 from apps.users.infrastructure.repositories.django_user_repository import DjangoUserRepository
 from apps.users.presentation.api.serializers import (
     RegisterUserSerializer,
+    LoginUserSerializer,
     CustomerProfileSerializer,
     CookProfileSerializer,
     AddressSerializer,
@@ -48,6 +51,44 @@ class UserRegisterView(APIView):
             return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(result, status=status.HTTP_201_CREATED)
+
+
+class UserLoginView(APIView):
+    """POST /api/users/login/ - Crea una sesion autenticada en Django."""
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = LoginUserSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        data = cast(Dict[str, Any], serializer.validated_data)
+        email = str(data["email"]).strip().lower()
+        password = str(data["password"])
+        user = authenticate(request, username=email, password=password)
+
+        if user is None:
+            return Response(
+                {"error": _("Credenciales incorrectas. Verifica tu email y contraseña.")},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        login(request, user)
+        return Response(
+            {"email": user.email, "active": user.is_active},
+            status=status.HTTP_200_OK,
+        )
+
+
+class UserLogoutView(APIView):
+    """POST /api/users/logout/ - Cierra la sesion autenticada."""
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        logout(request)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UserMeView(APIView):

@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from django.utils.translation import gettext as _
 
 from apps.dishes.application.services.product_service import ProductService
 from apps.dishes.domain.exceptions import InvalidProductData
@@ -53,7 +54,10 @@ class ProductDetailView(APIView):
         product = service.get_product(product_id)
 
         if product is None:
-            return Response({"error": "Producto no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": _("Producto no encontrado")},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         return Response(ProductOutputSerializer(product).data, status=status.HTTP_200_OK)
 
@@ -65,7 +69,7 @@ class ProductByNameView(APIView):
         name = request.query_params.get("name", "").strip()
         if not name:
             return Response(
-                {"error": "El parámetro 'name' es obligatorio"},
+                {"error": _("El parámetro 'name' es obligatorio")},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -73,6 +77,9 @@ class ProductByNameView(APIView):
         product = service.get_product_by_name(name)
 
         if product is None:
-            return Response({"error": "Producto no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": _("Producto no encontrado")},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         return Response(ProductOutputSerializer(product).data, status=status.HTTP_200_OK)

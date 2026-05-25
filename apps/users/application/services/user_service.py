@@ -1,4 +1,5 @@
 from typing import List, Optional
+from django.utils.translation import gettext_lazy as _
 
 from apps.users.domain.entities.address import Address
 from apps.users.domain.entities.cook import CookProfile
@@ -41,7 +42,10 @@ class UserService:
         AuthUser = get_user_model()
 
         if AuthUser.objects.filter(username=email).exists():
-            raise UserDomainError(f"Ya existe un usuario con el email '{email}'.")
+            raise UserDomainError(
+                _("Ya existe un usuario con el email '%(email)s'.")
+                % {"email": email}
+            )
 
         django_user = AuthUser.objects.create_user(
             username=email,
@@ -62,7 +66,7 @@ class UserService:
             ValueError: si full_name o phone no son válidos (entidad CustomerProfile).
         """
         if CustomerModel.objects.filter(user_id=user_id).exists():
-            raise UserDomainError("Este usuario ya tiene un perfil de cliente.")
+            raise UserDomainError(_("Este usuario ya tiene un perfil de cliente."))
 
         profile = CustomerProfile(full_name=full_name, phone=phone)
 
@@ -90,7 +94,7 @@ class UserService:
             ValueError: si name o specialty no son válidos (entidad CookProfile).
         """
         if CookModel.objects.filter(user_id=user_id).exists():
-            raise UserDomainError("Este usuario ya tiene un perfil de cocinero.")
+            raise UserDomainError(_("Este usuario ya tiene un perfil de cocinero."))
 
         profile = CookProfile(name=name, specialty=specialty)
 
@@ -172,13 +176,19 @@ class UserService:
     def activate(self, user_id) -> User:
         user = self._repo.get_by_id(user_id)
         if user is None:
-            raise ValueError(f"Usuario con id={user_id} no encontrado.")
+            raise ValueError(
+                _("Usuario con id=%(user_id)s no encontrado.")
+                % {"user_id": user_id}
+            )
         user.activate()
         return self._repo.save(user)
 
     def deactivate(self, user_id) -> User:
         user = self._repo.get_by_id(user_id)
         if user is None:
-            raise ValueError(f"Usuario con id={user_id} no encontrado.")
+            raise ValueError(
+                _("Usuario con id=%(user_id)s no encontrado.")
+                % {"user_id": user_id}
+            )
         user.deactivate()
         return self._repo.save(user)

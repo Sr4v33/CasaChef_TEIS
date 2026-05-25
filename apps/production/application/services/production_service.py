@@ -1,4 +1,5 @@
 from typing import List, Optional
+from django.utils.translation import gettext_lazy as _
 
 from apps.production.domain.entities.daily_production import DailyProductionEntity
 from apps.production.domain.ports.production_repository_port import ProductionRepositoryPort
@@ -25,7 +26,10 @@ class ProductionService:
         existing = self._repo.get_by_dish_and_date(dish_id=dish_id, date=date)
         if existing is not None:
             raise ValueError(
-                f"Ya existe un registro de producción para dish_id={dish_id} en fecha={date}"
+                _(
+                    "Ya existe un registro de producción para dish_id=%(dish_id)s en fecha=%(date)s"
+                )
+                % {"dish_id": dish_id, "date": date}
             )
         production = DailyProductionEntity(
             dish_id=dish_id,
@@ -50,6 +54,9 @@ class ProductionService:
         """Ajusta los cupos disponibles de un registro de producción."""
         production = self._repo.get_by_id(production_id)
         if production is None:
-            raise ValueError(f"No existe producción con id={production_id}")
+            raise ValueError(
+                _("No existe producción con id=%(production_id)s")
+                % {"production_id": production_id}
+            )
         production.adjust(new_units)
         return self._repo.update(production)

@@ -1,0 +1,177 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: CasaChef\n"
+"POT-Creation-Date: 2026-05-24 00:00+0000\n"
+"PO-Revision-Date: 2026-05-24 00:00+0000\n"
+"Last-Translator: Codex\n"
+"Language: en\n"
+"Language-Team: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Pendiente"
+msgstr "Pending"
+
+msgid "Confirmado"
+msgstr "Confirmed"
+
+msgid "Cancelado"
+msgstr "Canceled"
+
+msgid "Ocurrió un error inesperado."
+msgstr "An unexpected error occurred."
+
+msgid "Error de red: %s"
+msgstr "Network error: %s"
+
+msgid "Completa email y contraseña"
+msgstr "Enter both email and password"
+
+msgid "Credenciales incorrectas. Verifica tu email y contraseña."
+msgstr "Incorrect credentials. Check your email and password."
+
+msgid "No se pudo conectar. Verifica que el backend esté corriendo y la URL sea correcta."
+msgstr "Could not connect. Check that the backend is running and the URL is correct."
+
+msgid "Completa los campos de registro"
+msgstr "Complete the registration fields"
+
+msgid "Cuenta creada. Ahora inicia sesión."
+msgstr "Account created. Now sign in."
+
+msgid "Busca o agrega platos para comenzar"
+msgstr "Search or add dishes to get started"
+
+msgid "dish_id numérico"
+msgstr "numeric dish_id"
+
+msgid "Stock: %(stock)s uds."
+msgstr "Stock: %(stock)s units"
+
+msgid "Ingresa un nombre para buscar"
+msgstr "Enter a name to search"
+
+msgid "\"%s\" cargado. dish_id numérico asignado: %s"
+msgstr "\"%s\" loaded. Assigned numeric dish_id: %s"
+
+msgid "Plato no encontrado: \"%s\""
+msgstr "Dish not found: \"%s\""
+
+msgid "Nombre, precio y stock son obligatorios"
+msgstr "Name, price, and stock are required"
+
+msgid "\"%s\" creado. dish_id numérico: %s"
+msgstr "\"%s\" created. Numeric dish_id: %s"
+
+msgid "Carga platos desde el catálogo primero"
+msgstr "Load dishes from the catalog first"
+
+msgid "dish_id"
+msgstr "dish_id"
+
+msgid "Stock: %(stock)s"
+msgstr "Stock: %(stock)s"
+
+msgid "En carrito (%(quantity)s)"
+msgstr "In cart (%(quantity)s)"
+
+msgid "Plato #%s"
+msgstr "Dish #%s"
+
+msgid "Dish ID y precio son obligatorios"
+msgstr "Dish ID and price are required"
+
+msgid "El pedido está vacío"
+msgstr "The order is empty"
+
+msgid "Agrega al menos un plato"
+msgstr "Add at least one dish"
+
+msgid "Ingresa la dirección de entrega"
+msgstr "Enter the delivery address"
+
+msgid "Selecciona la fecha de entrega"
+msgstr "Select the delivery date"
+
+msgid "¡Pedido creado con éxito!"
+msgstr "Order created successfully!"
+
+msgid "Stock de producción reservado dentro de una transacción atómica. Fecha de entrega: %s."
+msgstr "Production stock reserved inside an atomic transaction. Delivery date: %s."
+
+msgid "Pedido #%s"
+msgstr "Order #%s"
+
+msgid "Stock de producción insuficiente"
+msgstr "Insufficient production stock"
+
+msgid "No hay cupos suficientes en producción para uno de los platos seleccionados en esa fecha."
+msgstr "There is not enough production capacity for one of the selected dishes on that date."
+
+msgid "Error al crear el pedido"
+msgstr "Error creating the order"
+
+msgid "Ingresa un ID de pedido"
+msgstr "Enter an order ID"
+
+msgid "No se encontró el pedido #%s"
+msgstr "Order #%s was not found"
+
+msgid "No tienes permiso para ver este pedido"
+msgstr "You do not have permission to view this order"
+
+msgid "Pedido #%s confirmado"
+msgstr "Order #%s confirmed"
+
+msgid "Error al confirmar"
+msgstr "Error confirming"
+
+msgid "Pedido #%s cancelado"
+msgstr "Order #%s canceled"
+
+msgid "Error al cancelar"
+msgstr "Error canceling"
+
+msgid "Stock validado correctamente."
+msgstr "Stock validated successfully."
+
+msgid "Error al validar"
+msgstr "Error validating"
+
+msgid "Error al cargar"
+msgstr "Error loading"
+
+msgid "Sin registros para los filtros aplicados"
+msgstr "No records for the applied filters"
+
+msgid "ID prod."
+msgstr "Prod. ID"
+
+msgid "Dish ID"
+msgstr "Dish ID"
+
+msgid "Fecha"
+msgstr "Date"
+
+msgid "Cupos"
+msgstr "Capacity"
+
+msgid "0 - Sin cupos"
+msgstr "0 - No capacity"
+
+msgid "%s - Bajo"
+msgstr "%s - Low"
+
+msgid "%s - Disponible"
+msgstr "%s - Available"
+
+msgid "Completa todos los campos"
+msgstr "Complete all fields"
+
+msgid "Se registraron %s cupos para dish_id %s el %s."
+msgstr "%s capacity units were registered for dish_id %s on %s."
+
+msgid "Cupos ajustados a %s."
+msgstr "Capacity adjusted to %s."

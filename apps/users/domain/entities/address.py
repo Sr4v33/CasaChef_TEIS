@@ -1,4 +1,5 @@
 import uuid
+from django.utils.translation import gettext_lazy as _
 
 class Address:
     def __init__(
@@ -25,7 +26,10 @@ class Address:
 
     def _validate_non_empty(self, value: str, field_name: str) -> str:
         if not value or not value.strip():
-            raise ValueError(f"{field_name} cannot be empty")
+            raise ValueError(
+                _("%(field_name)s no puede estar vacío")
+                % {"field_name": field_name}
+            )
         return value.strip()
 
     def __repr__(self):

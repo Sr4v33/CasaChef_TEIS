@@ -1,9 +1,10 @@
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ LANGUAGE_CODE|default:'es' }}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CasaChef — Panel de Pedidos</title>
+<title>{% trans "CasaChef — Panel de Pedidos" %}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <style>
@@ -21,7 +22,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
              url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Ccircle cx='1' cy='1' r='.7' fill='rgba(59,35,20,.03)'/%3E%3C/svg%3E");}
 #app{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:0 28px 80px}
 
-/* HEADER */
 header{display:flex;align-items:center;justify-content:space-between;padding:30px 0 24px;border-bottom:1px solid var(--border);margin-bottom:32px}
 .brand{display:flex;align-items:center;gap:14px}
 .brand-mark{width:44px;height:44px;border-radius:50%;background:linear-gradient(145deg,var(--espresso),#5C3920);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:22px;color:var(--cream);box-shadow:0 3px 14px rgba(59,35,20,.35)}
@@ -29,24 +29,23 @@ header{display:flex;align-items:center;justify-content:space-between;padding:30p
 .brand-tagline{font-size:11px;color:var(--copper);letter-spacing:2.5px;text-transform:uppercase;margin-top:2px}
 #auth-status{display:flex;align-items:center;gap:10px}
 #user-chip{display:none;align-items:center;gap:6px;background:var(--warm);border:1px solid var(--border);padding:6px 14px;border-radius:20px;font-size:13px;color:var(--espresso)}
+.lang-form select{background:var(--paper);border:1px solid var(--border);border-radius:999px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--espresso);cursor:pointer}
+.lang-form select:focus{outline:none;box-shadow:0 0 0 3px rgba(181,99,26,.09);border-color:var(--copper)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-/* TABS */
 .tabs{display:flex;gap:2px;margin-bottom:28px;border-bottom:1px solid var(--border)}
 .tab{padding:10px 18px;cursor:pointer;font-size:12px;font-weight:500;color:rgba(59,35,20,.45);border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.5px;text-transform:uppercase;margin-bottom:-1px}
 .tab.active{color:var(--copper);border-bottom-color:var(--copper)}
 .tab:hover:not(.active){color:var(--ink)}
 
-/* PANELS */
 .panel{display:none}
 .panel.active{display:block;animation:rise .28s ease}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-/* CARD */
 .card{background:var(--paper);border:1px solid var(--border);border-radius:14px;padding:26px;box-shadow:var(--shadow);margin-bottom:20px}
 .card-header{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:17px;color:var(--espresso);margin-bottom:22px}
 .ch-icon{width:34px;height:34px;border-radius:9px;background:rgba(181,99,26,.11);display:flex;align-items:center;justify-content:center;font-size:16px}
 
-/* FORM */
 .field{margin-bottom:14px}
 .field label{display:block;font-size:11px;font-weight:500;letter-spacing:1.3px;text-transform:uppercase;color:var(--copper);margin-bottom:5px}
 .field input,.field select,.field textarea{width:100%;padding:9px 13px;background:var(--cream);border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);transition:border-color .18s,box-shadow .18s;outline:none}
@@ -54,7 +53,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:30p
 .field textarea{resize:vertical;min-height:56px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 
-/* BUTTONS */
 .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .18s;letter-spacing:.2px}
 .btn-primary{background:var(--espresso);color:var(--cream)}
 .btn-primary:hover{background:var(--copper);transform:translateY(-1px);box-shadow:0 4px 14px rgba(59,35,20,.22)}
@@ -66,19 +64,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:30p
 .btn:disabled{opacity:.48;cursor:not-allowed;transform:none!important}
 .btn-full{width:100%;justify-content:center}
 
-/* ALERTS */
 .alert{padding:11px 15px;border-radius:8px;font-size:13px;display:none;margin-bottom:14px;line-height:1.5}
 .alert.on{display:block}
 .alert-ok{background:rgba(78,112,80,.11);color:var(--sage);border:1px solid rgba(78,112,80,.22)}
 .alert-err{background:rgba(168,50,40,.09);color:var(--red);border:1px solid rgba(168,50,40,.22)}
 .alert-inf{background:rgba(181,99,26,.09);color:var(--copper);border:1px solid rgba(181,99,26,.22)}
 
-/* API BAR */
-.api-bar{display:flex;align-items:center;gap:10px;background:var(--warm);border:1px solid var(--border);border-radius:9px;padding:8px 15px;margin-bottom:26px}
-.api-bar-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--copper);white-space:nowrap}
-.api-bar input{flex:1;background:none;border:none;outline:none;font-family:monospace;font-size:13px;color:var(--espresso)}
-
-/* PRODUCT GRID */
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:14px}
 .pcard{background:var(--paper);border:1px solid var(--border);border-radius:11px;padding:16px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
 .pcard::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--copper),var(--copper2));transform:scaleX(0);transform-origin:left;transition:transform .2s}
@@ -92,7 +83,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:30p
 .pcard-desc{font-size:11px;color:rgba(59,35,20,.55);margin-bottom:6px;line-height:1.4}
 .pcard-badge{display:inline-block;font-size:10px;color:var(--sage);background:rgba(78,112,80,.1);padding:1px 7px;border-radius:10px;margin-top:4px}
 
-/* CART */
 .cart-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--warm);border-radius:8px;margin-bottom:8px;border:1px solid var(--border)}
 .ci-name{flex:1;font-size:13px;font-weight:500}
 .ci-price{font-size:12px;color:var(--copper);white-space:nowrap}
@@ -103,11 +93,9 @@ header{display:flex;align-items:center;justify-content:space-between;padding:30p
 .ci-rm{background:none;border:none;cursor:pointer;font-size:15px;color:rgba(59,35,20,.28);transition:color .15s}
 .ci-rm:hover{color:var(--red)}
 
-/* SUMMARY */
 .sum-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:14px}
 .sum-total{font-family:'Playfair Display',serif;font-size:19px;color:var(--copper)}
 
-/* RESULT */
 .result-box{text-align:center;padding:44px 28px;background:var(--paper);border:1px solid var(--border);border-radius:14px;margin-top:22px;display:none}
 .result-box.on{display:block;animation:rise .35s ease}
 .r-icon{font-size:56px;margin-bottom:14px}
@@ -115,7 +103,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:30p
 .r-badge{display:inline-block;padding:5px 18px;background:rgba(181,99,26,.1);border-radius:20px;font-size:13px;color:var(--copper);font-weight:500;margin:6px 0 12px}
 .r-msg{font-size:13px;color:rgba(59,35,20,.6);line-height:1.6;margin-bottom:20px}
 
-/* DETAIL */
 .dl{margin-bottom:18px}
 .dl-label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--copper);margin-bottom:3px}
 .dl-val{font-size:15px}
@@ -124,7 +111,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:30p
 .badge-CONFIRMED{background:rgba(78,112,80,.12);color:var(--sage)}
 .badge-CANCELLED{background:rgba(168,50,40,.09);color:var(--red)}
 
-/* TABLE */
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;padding:8px 11px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--copper);border-bottom:1px solid var(--border)}
 td{padding:10px 11px;border-bottom:1px solid rgba(59,35,20,.055)}
@@ -162,121 +148,125 @@ code{font-family:monospace;background:rgba(59,35,20,.07);padding:1px 5px;border-
     <div class="brand-mark">C</div>
     <div>
       <div class="brand-name">CasaChef</div>
-      <div class="brand-tagline">Panel de Pedidos</div>
+      <div class="brand-tagline">{% trans "Panel de Pedidos" %}</div>
     </div>
   </div>
   <div id="auth-status">
+    <form action="{% url 'set_language' %}" method="post" class="lang-form">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <label class="sr-only" for="language-switch">{% trans "Idioma" %}</label>
+      <select id="language-switch" name="language" onchange="this.form.submit()">
+        {% get_current_language as CURRENT_LANGUAGE %}
+        <option value="es" {% if CURRENT_LANGUAGE == "es" %}selected{% endif %}>ES</option>
+        <option value="en" {% if CURRENT_LANGUAGE == "en" %}selected{% endif %}>EN</option>
+      </select>
+    </form>
     <div id="user-chip"><span>👤</span><span id="user-email-lbl"></span></div>
-    <button class="btn btn-ghost btn-sm" id="logout-btn" style="display:none" onclick="doLogout()">Cerrar sesión</button>
+    <button class="btn btn-ghost btn-sm" id="logout-btn" style="display:none" onclick="doLogout()">{% trans "Cerrar sesión" %}</button>
   </div>
 </header>
 
-<div class="api-bar">
-  <span class="api-bar-label">API URL</span>
-  <input type="text" id="base-url" value="http://127.0.0.1:8000">
-</div>
-
 <div class="tabs" id="tabs" style="display:none">
-  <div class="tab active" data-panel="panel-catalog"    onclick="showTab(this)">🍽 Catálogo</div>
-  <div class="tab"        data-panel="panel-order"      onclick="showTab(this)">📋 Nuevo Pedido</div>
-  <div class="tab"        data-panel="panel-lookup"     onclick="showTab(this)">🔍 Buscar Pedido</div>
-  <div class="tab"        data-panel="panel-production" onclick="showTab(this)">📊 Producción</div>
+  <div class="tab active" data-panel="panel-catalog" onclick="showTab(this)">🍽 {% trans "Catálogo" %}</div>
+  <div class="tab" data-panel="panel-order" onclick="showTab(this)">📋 {% trans "Nuevo pedido" %}</div>
+  <div class="tab" data-panel="panel-lookup" onclick="showTab(this)">🔍 {% trans "Buscar pedido" %}</div>
+  <div class="tab" data-panel="panel-production" onclick="showTab(this)">📊 {% trans "Producción" %}</div>
 </div>
 
-<!-- ══════════ LOGIN ══════════ -->
 <div id="panel-login" class="panel active">
   <div style="max-width:430px;margin:0 auto">
     <div class="card">
-      <div class="card-header"><div class="ch-icon">🔐</div>Acceder al sistema</div>
+      <div class="card-header"><div class="ch-icon">🔐</div>{% trans "Acceder al sistema" %}</div>
       <div id="a-login" class="alert"></div>
-      <div class="field"><label>Email</label><input type="email" id="l-email" placeholder="chef@casachef.com"></div>
-      <div class="field"><label>Contraseña</label><input type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <button class="btn btn-primary btn-full" id="login-btn" onclick="doLogin()">Iniciar sesión</button>
+      <div class="field"><label>{% trans "Email" %}</label><input type="email" id="l-email" placeholder="chef@casachef.com"></div>
+      <div class="field"><label>{% trans "Contraseña" %}</label><input type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="btn btn-primary btn-full" id="login-btn" onclick="doLogin()">{% trans "Iniciar sesión" %}</button>
       <div class="div"></div>
-      <p style="font-size:12px;text-align:center;color:rgba(59,35,20,.45);margin-bottom:12px">¿Sin cuenta? Regístrate aquí</p>
+      <p style="font-size:12px;text-align:center;color:rgba(59,35,20,.45);margin-bottom:12px">{% trans "¿Sin cuenta? Regístrate aquí" %}</p>
       <div class="row2">
-        <div class="field" style="margin-bottom:0"><label>Email</label><input type="email" id="r-email" placeholder="nuevo@email.com"></div>
-        <div class="field" style="margin-bottom:0"><label>Contraseña</label><input type="password" id="r-pass" placeholder="Mínimo 8 caracteres"></div>
+        <div class="field" style="margin-bottom:0"><label>{% trans "Email" %}</label><input type="email" id="r-email" placeholder="nuevo@email.com"></div>
+        <div class="field" style="margin-bottom:0"><label>{% trans "Contraseña" %}</label><input type="password" id="r-pass" placeholder="{% trans 'Mínimo 8 caracteres' %}"></div>
       </div>
-      <button class="btn btn-ghost btn-full" onclick="doRegister()" style="margin-top:12px">Crear cuenta</button>
+      <button class="btn btn-ghost btn-full" id="register-btn" onclick="doRegister()" style="margin-top:12px">{% trans "Crear cuenta" %}</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════ CATALOG ══════════ -->
 <div id="panel-catalog" class="panel">
   <div class="card">
-    <div class="card-header"><div class="ch-icon">🍽</div>Catálogo de Platos</div>
+    <div class="card-header"><div class="ch-icon">🍽</div>{% trans "Catálogo de platos" %}</div>
     <div id="a-cat" class="alert"></div>
     <div class="tip">
+      {% blocktranslate trimmed %}
       El catálogo se gestiona localmente en la sesión. Usa <strong>Buscar por nombre</strong> para cargar platos existentes del backend. El <strong>ID numérico</strong> asignado es el que debes usar como <code>dish_id</code> en producción y pedidos.
+      {% endblocktranslate %}
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">
       <div style="display:flex;gap:6px;flex:1;min-width:200px">
-        <div class="field" style="margin-bottom:0;flex:1"><label>Buscar por nombre</label><input type="text" id="search-name" placeholder="Ej: Bandeja paisa" onkeydown="if(event.key==='Enter')searchByName()"></div>
-        <button class="btn btn-ghost btn-sm" style="align-self:flex-end" onclick="searchByName()">Buscar</button>
+        <div class="field" style="margin-bottom:0;flex:1"><label>{% trans "Buscar por nombre" %}</label><input type="text" id="search-name" placeholder="{% trans 'Ej: Bandeja paisa' %}" onkeydown="if(event.key==='Enter')searchByName()"></div>
+        <button class="btn btn-ghost btn-sm" id="search-btn" style="align-self:flex-end" onclick="searchByName()">{% trans "Buscar" %}</button>
       </div>
-      <button class="btn btn-primary btn-sm" style="align-self:flex-end" onclick="toggleInlay('inlay-np')">+ Agregar plato</button>
+      <button class="btn btn-primary btn-sm" style="align-self:flex-end" onclick="toggleInlay('inlay-np')">+ {% trans "Agregar plato" %}</button>
     </div>
     <div class="inlay" id="inlay-np">
-      <p style="font-size:13px;font-weight:500;margin-bottom:14px">Nuevo plato</p>
+      <p style="font-size:13px;font-weight:500;margin-bottom:14px">{% trans "Nuevo plato" %}</p>
       <div class="row2">
-        <div class="field"><label>Nombre</label><input type="text" id="np-name" placeholder="Bandeja paisa"></div>
-        <div class="field"><label>Precio</label><input type="number" id="np-price" placeholder="18000" min="0.01" step="0.01"></div>
+        <div class="field"><label>{% trans "Nombre" %}</label><input type="text" id="np-name" placeholder="{% trans 'Bandeja paisa' %}"></div>
+        <div class="field"><label>{% trans "Precio" %}</label><input type="number" id="np-price" placeholder="18000" min="0.01" step="0.01"></div>
       </div>
       <div class="row2">
-        <div class="field"><label>Stock</label><input type="number" id="np-stock" placeholder="50" min="0"></div>
-        <div class="field"><label>Descripción (opcional)</label><input type="text" id="np-desc" placeholder="Descripción breve"></div>
+        <div class="field"><label>{% trans "Stock" %}</label><input type="number" id="np-stock" placeholder="50" min="0"></div>
+        <div class="field"><label>{% trans "Descripción (opcional)" %}</label><input type="text" id="np-desc" placeholder="{% trans 'Descripción breve' %}"></div>
       </div>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-primary btn-sm" onclick="addProduct()">Guardar plato</button>
-        <button class="btn btn-ghost btn-sm" onclick="toggleInlay('inlay-np')">Cancelar</button>
+        <button class="btn btn-primary btn-sm" id="add-product-btn" onclick="addProduct()">{% trans "Guardar plato" %}</button>
+        <button class="btn btn-ghost btn-sm" onclick="toggleInlay('inlay-np')">{% trans "Cancelar" %}</button>
       </div>
     </div>
     <div id="catalog-grid" class="pgrid">
-      <div class="empty" style="grid-column:1/-1"><div class="empty-icon">🍳</div><p>Busca o agrega platos para comenzar</p></div>
+      <div class="empty" style="grid-column:1/-1"><div class="empty-icon">🍳</div><p>{% trans "Busca o agrega platos para comenzar" %}</p></div>
     </div>
   </div>
 </div>
 
-<!-- ══════════ NEW ORDER ══════════ -->
 <div id="panel-order" class="panel">
   <div class="twocol">
     <div>
       <div class="card">
-        <div class="card-header"><div class="ch-icon">🍽</div>Selecciona los platos</div>
-        <div class="tip">Haz clic en una tarjeta para agregar al pedido. El <code>dish_id</code> numérico debe coincidir con un registro de producción activo para la fecha elegida.</div>
+        <div class="card-header"><div class="ch-icon">🍽</div>{% trans "Selecciona los platos" %}</div>
+        <div class="tip">{% blocktranslate trimmed %}Haz clic en una tarjeta para agregar al pedido. El <code>dish_id</code> numérico debe coincidir con un registro de producción activo para la fecha elegida.{% endblocktranslate %}</div>
         <div id="order-pgrid" class="pgrid">
-          <div class="empty" style="grid-column:1/-1"><div class="empty-icon">🍳</div><p>Carga platos desde el catálogo primero</p></div>
+          <div class="empty" style="grid-column:1/-1"><div class="empty-icon">🍳</div><p>{% trans "Carga platos desde el catálogo primero" %}</p></div>
         </div>
       </div>
       <div class="card">
-        <div class="card-header"><div class="ch-icon">✏️</div>Agregar ítem manualmente</div>
-        <div class="tip">Usa esto si conoces el <code>dish_id</code> numérico directamente (la PK entera del plato en la base de datos).</div>
+        <div class="card-header"><div class="ch-icon">✏️</div>{% trans "Agregar ítem manualmente" %}</div>
+        <div class="tip">{% blocktranslate trimmed %}Usa esto si conoces el <code>dish_id</code> numérico directamente (la PK entera del plato en la base de datos).{% endblocktranslate %}</div>
         <div class="row2">
-          <div class="field"><label>Dish ID (número)</label><input type="number" id="mi-id" placeholder="1" min="1"></div>
-          <div class="field"><label>Nombre (referencia)</label><input type="text" id="mi-name" placeholder="Plato del día"></div>
+          <div class="field"><label>{% trans "Dish ID (número)" %}</label><input type="number" id="mi-id" placeholder="1" min="1"></div>
+          <div class="field"><label>{% trans "Nombre (referencia)" %}</label><input type="text" id="mi-name" placeholder="{% trans 'Plato del día' %}"></div>
         </div>
         <div class="row2">
-          <div class="field"><label>Cantidad</label><input type="number" id="mi-qty" placeholder="1" min="1" value="1"></div>
-          <div class="field"><label>Precio unitario</label><input type="number" id="mi-price" placeholder="18000" min="0.01" step="0.01"></div>
+          <div class="field"><label>{% trans "Cantidad" %}</label><input type="number" id="mi-qty" placeholder="1" min="1" value="1"></div>
+          <div class="field"><label>{% trans "Precio unitario" %}</label><input type="number" id="mi-price" placeholder="18000" min="0.01" step="0.01"></div>
         </div>
-        <button class="btn btn-ghost btn-sm" onclick="addManualItem()">+ Agregar al pedido</button>
+        <button class="btn btn-ghost btn-sm" onclick="addManualItem()">+ {% trans "Agregar al pedido" %}</button>
       </div>
     </div>
     <div>
       <div class="card" style="position:sticky;top:20px">
-        <div class="card-header"><div class="ch-icon">📋</div>Tu pedido</div>
+        <div class="card-header"><div class="ch-icon">📋</div>{% trans "Tu pedido" %}</div>
         <div id="a-order" class="alert"></div>
-        <div id="cart-list"><div class="empty" style="padding:16px"><div class="empty-icon">🛒</div><p style="font-size:12px">El pedido está vacío</p></div></div>
+        <div id="cart-list"><div class="empty" style="padding:16px"><div class="empty-icon">🛒</div><p style="font-size:12px">{% trans "El pedido está vacío" %}</p></div></div>
         <div id="cart-summary" style="display:none">
-          <div class="sum-row"><span>Subtotal</span><span id="s-sub">$0</span></div>
-          <div class="sum-row" style="border:none;margin-top:3px"><strong>Total</strong><span class="sum-total" id="s-total">$0</span></div>
+          <div class="sum-row"><span>{% trans "Subtotal" %}</span><span id="s-sub">$0</span></div>
+          <div class="sum-row" style="border:none;margin-top:3px"><strong>{% trans "Total" %}</strong><span class="sum-total" id="s-total">$0</span></div>
         </div>
         <div class="div"></div>
-        <div class="field"><label>Dirección de entrega</label><textarea id="o-address" placeholder="Calle 15 #45-78, Medellín, Antioquia"></textarea></div>
-        <div class="field"><label>Fecha de entrega</label><input type="date" id="o-date"></div>
-        <button class="btn btn-primary btn-full" id="place-btn" onclick="placeOrder()">Confirmar pedido</button>
+        <div class="field"><label>{% trans "Dirección de entrega" %}</label><textarea id="o-address" placeholder="{% trans 'Calle 15 #45-78, Medellín, Antioquia' %}"></textarea></div>
+        <div class="field"><label>{% trans "Fecha de entrega" %}</label><input type="date" id="o-date"></div>
+        <button class="btn btn-primary btn-full" id="place-btn" onclick="placeOrder()">{% trans "Confirmar pedido" %}</button>
       </div>
     </div>
   </div>
@@ -285,79 +275,79 @@ code{font-family:monospace;background:rgba(59,35,20,.07);padding:1px 5px;border-
     <div class="r-title" id="r-title"></div>
     <div id="r-badge-wrap"></div>
     <div class="r-msg" id="r-msg"></div>
-    <button class="btn btn-ghost" onclick="resetOrder()">Hacer otro pedido</button>
+    <button class="btn btn-ghost" onclick="resetOrder()">{% trans "Hacer otro pedido" %}</button>
   </div>
 </div>
 
-<!-- ══════════ LOOKUP ══════════ -->
 <div id="panel-lookup" class="panel">
   <div class="card">
-    <div class="card-header"><div class="ch-icon">🔍</div>Buscar pedido</div>
+    <div class="card-header"><div class="ch-icon">🔍</div>{% trans "Buscar pedido" %}</div>
     <div id="a-lookup" class="alert"></div>
     <div style="display:flex;gap:10px;margin-bottom:22px">
-      <div class="field" style="flex:1;margin-bottom:0"><label>ID del pedido</label><input type="number" id="lookup-id" placeholder="123" min="1" onkeydown="if(event.key==='Enter')lookupOrder()"></div>
-      <button class="btn btn-primary" style="align-self:flex-end" onclick="lookupOrder()">Buscar</button>
+      <div class="field" style="flex:1;margin-bottom:0"><label>{% trans "ID del pedido" %}</label><input type="number" id="lookup-id" placeholder="123" min="1" onkeydown="if(event.key==='Enter')lookupOrder()"></div>
+      <button class="btn btn-primary" id="lookup-btn" style="align-self:flex-end" onclick="lookupOrder()">{% trans "Buscar" %}</button>
     </div>
     <div id="order-detail" style="display:none">
       <div class="div"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px">
-        <div class="dl"><div class="dl-label">ID Pedido</div><div class="dl-val" id="d-id">—</div></div>
-        <div class="dl"><div class="dl-label">Estado</div><div id="d-status">—</div></div>
-        <div class="dl"><div class="dl-label">Fecha entrega</div><div class="dl-val" id="d-date">—</div></div>
+        <div class="dl"><div class="dl-label">{% trans "ID pedido" %}</div><div class="dl-val" id="d-id">—</div></div>
+        <div class="dl"><div class="dl-label">{% trans "Estado" %}</div><div id="d-status">—</div></div>
+        <div class="dl"><div class="dl-label">{% trans "Fecha entrega" %}</div><div class="dl-val" id="d-date">—</div></div>
       </div>
-      <div class="dl"><div class="dl-label">Dirección</div><div class="dl-val" id="d-addr">—</div></div>
+      <div class="dl"><div class="dl-label">{% trans "Dirección" %}</div><div class="dl-val" id="d-addr">—</div></div>
       <table style="margin-top:10px">
-        <thead><tr><th>Dish ID</th><th>Cantidad</th><th>Precio unit.</th><th>Subtotal</th></tr></thead>
+        <thead><tr><th>{% trans "Dish ID" %}</th><th>{% trans "Cantidad" %}</th><th>{% trans "Precio unit." %}</th><th>{% trans "Subtotal" %}</th></tr></thead>
         <tbody id="d-items"></tbody>
       </table>
       <div style="text-align:right;margin-top:12px;font-family:'Playfair Display',serif;font-size:17px;color:var(--copper)">
-        Total: <span id="d-total">—</span>
+        {% trans "Total" %}: <span id="d-total">—</span>
       </div>
       <div class="div"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-ghost btn-sm" onclick="doConfirm()">✓ Confirmar pedido</button>
-        <button class="btn btn-danger btn-sm" onclick="doCancel()">✕ Cancelar pedido</button>
-        <button class="btn btn-ghost btn-sm" onclick="doValidateStock()">⚡ Validar stock</button>
+        <button class="btn btn-ghost btn-sm" id="confirm-btn" onclick="doConfirm()">✓ {% trans "Confirmar pedido" %}</button>
+        <button class="btn btn-danger btn-sm" id="cancel-btn" onclick="doCancel()">✕ {% trans "Cancelar pedido" %}</button>
+        <button class="btn btn-ghost btn-sm" id="validate-btn" onclick="doValidateStock()">⚡ {% trans "Validar stock" %}</button>
       </div>
       <div id="a-action" class="alert" style="margin-top:12px"></div>
     </div>
   </div>
 </div>
 
-<!-- ══════════ PRODUCTION ══════════ -->
 <div id="panel-production" class="panel">
   <div class="twocol">
     <div>
       <div class="card">
-        <div class="card-header"><div class="ch-icon">📊</div>Registros de producción</div>
+        <div class="card-header"><div class="ch-icon">📊</div>{% trans "Registros de producción" %}</div>
         <div id="a-prod" class="alert"></div>
         <div class="tip">
+          {% blocktranslate trimmed %}
           Cada registro define cuántas unidades de un plato están disponibles en una fecha. El <strong>Dish ID</strong> es la PK numérica (entera) del plato en la base de datos.
+          {% endblocktranslate %}
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
-          <div class="field" style="margin-bottom:0"><label>Dish ID</label><input type="number" id="pf-dish" placeholder="1" style="width:90px"></div>
-          <div class="field" style="margin-bottom:0"><label>Fecha</label><input type="date" id="pf-date"></div>
-          <button class="btn btn-primary btn-sm" style="align-self:flex-end" onclick="loadProd()">Filtrar</button>
-          <button class="btn btn-ghost btn-sm" style="align-self:flex-end" onclick="loadAllProd()">Ver todos</button>
+          <div class="field" style="margin-bottom:0"><label>{% trans "Dish ID" %}</label><input type="number" id="pf-dish" placeholder="1" style="width:90px"></div>
+          <div class="field" style="margin-bottom:0"><label>{% trans "Fecha" %}</label><input type="date" id="pf-date"></div>
+          <button class="btn btn-primary btn-sm" id="filter-prod-btn" style="align-self:flex-end" onclick="loadProd()">{% trans "Filtrar" %}</button>
+          <button class="btn btn-ghost btn-sm" id="all-prod-btn" style="align-self:flex-end" onclick="loadAllProd()">{% trans "Ver todos" %}</button>
         </div>
-        <div id="prod-tbl"><div class="empty"><div class="empty-icon">📋</div><p>Usa los filtros o "Ver todos"</p></div></div>
+        <div id="prod-tbl"><div class="empty"><div class="empty-icon">📋</div><p>{% trans 'Usa los filtros o "Ver todos"' %}</p></div></div>
       </div>
     </div>
     <div>
       <div class="card">
-        <div class="card-header"><div class="ch-icon">➕</div>Crear producción diaria</div>
-        <div class="tip">El <strong>Dish ID</strong> debe ser el entero que la base de datos asignó al plato (visible en el admin de Django o con una consulta directa).</div>
-        <div class="field"><label>Dish ID (numérico)</label><input type="number" id="pc-dish" placeholder="1" min="1"></div>
-        <div class="field"><label>Fecha</label><input type="date" id="pc-date"></div>
-        <div class="field"><label>Unidades disponibles</label><input type="number" id="pc-units" placeholder="50" min="0"></div>
-        <button class="btn btn-primary btn-full" onclick="createProd()">Crear registro</button>
+        <div class="card-header"><div class="ch-icon">➕</div>{% trans "Crear producción diaria" %}</div>
+        <div class="tip">{% blocktranslate trimmed %}El <strong>Dish ID</strong> debe ser el entero que la base de datos asignó al plato (visible en el admin de Django o con una consulta directa).{% endblocktranslate %}</div>
+        <div class="field"><label>{% trans "Dish ID (numérico)" %}</label><input type="number" id="pc-dish" placeholder="1" min="1"></div>
+        <div class="field"><label>{% trans "Fecha" %}</label><input type="date" id="pc-date"></div>
+        <div class="field"><label>{% trans "Unidades disponibles" %}</label><input type="number" id="pc-units" placeholder="50" min="0"></div>
+        <button class="btn btn-primary btn-full" id="create-prod-btn" onclick="createProd()">{% trans "Crear registro" %}</button>
         <div id="a-prod-create" class="alert" style="margin-top:12px"></div>
       </div>
       <div class="card">
-        <div class="card-header"><div class="ch-icon">✏️</div>Ajustar cupos</div>
-        <div class="field"><label>ID del registro de producción</label><input type="number" id="pa-id" placeholder="1" min="1"></div>
-        <div class="field"><label>Nuevos cupos disponibles</label><input type="number" id="pa-units" placeholder="30" min="0"></div>
-        <button class="btn btn-ghost btn-full" onclick="adjustProd()">Aplicar ajuste</button>
+        <div class="card-header"><div class="ch-icon">✏️</div>{% trans "Ajustar cupos" %}</div>
+        <div class="field"><label>{% trans "ID del registro de producción" %}</label><input type="number" id="pa-id" placeholder="1" min="1"></div>
+        <div class="field"><label>{% trans "Nuevos cupos disponibles" %}</label><input type="number" id="pa-units" placeholder="30" min="0"></div>
+        <button class="btn btn-ghost btn-full" id="adjust-prod-btn" onclick="adjustProd()">{% trans "Aplicar ajuste" %}</button>
         <div id="a-prod-adj" class="alert" style="margin-top:12px"></div>
       </div>
     </div>
@@ -366,261 +356,777 @@ code{font-family:monospace;background:rgba(59,35,20,.07);padding:1px 5px;border-
 
 </div>
 
+<script src="{% url 'javascript-catalog' %}"></script>
 <script>
-// ── STATE ──
-let AUTH=null, CATALOG=[], CART={}, CUR_ORDER=null;
+let AUTH = null;
+let CATALOG = [];
+let CART = {};
+let CUR_ORDER = null;
 
-// ── UTILS ──
-const $=id=>document.getElementById(id);
-const BASE=()=>$('base-url').value.replace(/\/$/,'');
-const fmt=n=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(n);
-const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const $ = (id) => document.getElementById(id);
+const BASE = () => window.location.origin.replace(/\/$/, "");
+const LOCALE = document.documentElement.lang.startsWith("en") ? "en-US" : "es-CO";
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS", "TRACE"]);
+const STATUS_LABELS = {
+  PENDING: gettext("Pendiente"),
+  CONFIRMED: gettext("Confirmado"),
+  CANCELLED: gettext("Cancelado"),
+};
+const getCsrfToken = () =>
+  document.querySelector('.lang-form input[name="csrfmiddlewaretoken"]')?.value || "";
 
-function alert_(id,msg,type='err'){const e=$(id);if(!e)return;e.textContent=msg;e.className=`alert alert-${type} on`}
-function clearAlert(id){const e=$(id);if(e)e.className='alert'}
-function setLoading(id,on,text=''){const b=$(id);if(!b)return;b.disabled=on;b.innerHTML=on?'<div class="spin"></div>':text}
-function toggleInlay(id){const e=$(id);e.style.display=(e.style.display==='none'||!e.style.display)?'block':'none'}
+const fmt = (value) =>
+  new Intl.NumberFormat(LOCALE, {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0,
+  }).format(Number(value || 0));
 
-// ── API ──
-async function api(path,method='GET',body=null){
-  const h={'Content-Type':'application/json'};
-  if(AUTH?.token)h['Authorization']='Basic '+AUTH.token;
-  const opts={method,headers:h,credentials:'include'};
-  if(body)opts.body=JSON.stringify(body);
-  try{
-    const r=await fetch(BASE()+path,opts);
-    let d=null;try{d=await r.json()}catch(_){}
-    return{ok:r.ok,status:r.status,data:d};
-  }catch(e){return{ok:false,status:0,data:{error:'Error de red: '+e.message}}}
+const esc = (value) =>
+  String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+function formatNamed(message, params) {
+  return interpolate(message, params, true);
 }
 
-// ── AUTH ──
-async function doLogin(){
-  clearAlert('a-login');
-  const email=$('l-email').value.trim(), pass=$('l-pass').value;
-  if(!email||!pass){alert_('a-login','Completa email y contraseña');return}
-  setLoading('login-btn',true);
-  const token=btoa(email+':'+pass);
-  try{
-    const r=await fetch(BASE()+'/api/users/me/',{headers:{'Authorization':'Basic '+token},credentials:'include'});
-    if(r.ok){AUTH={email,token};onLogin()}
-    else alert_('a-login','Credenciales incorrectas. Verifica tu email y contraseña.');
-  }catch(e){alert_('a-login','No se pudo conectar. Verifica que el backend esté corriendo y la URL sea correcta.')}
-  setLoading('login-btn',false,'Iniciar sesión');
+function formatList(message, values) {
+  return interpolate(message, values, false);
 }
 
-async function doRegister(){
-  clearAlert('a-login');
-  const email=$('r-email').value.trim(),pass=$('r-pass').value;
-  if(!email||!pass){alert_('a-login','Completa los campos de registro');return}
-  try{
-    const r=await fetch(BASE()+'/api/users/register/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pass}),credentials:'include'});
-    const d=await r.json().catch(()=>({}));
-    if(r.ok){alert_('a-login','✓ Cuenta creada. Ahora inicia sesión.','ok');$('l-email').value=email;$('l-pass').value=pass}
-    else alert_('a-login','Error: '+(d.error||JSON.stringify(d)));
-  }catch(e){alert_('a-login','Error de red: '+e.message)}
+function alert_(id, message, type = "err") {
+  const element = $(id);
+  if (!element) {
+    return;
+  }
+  element.textContent = message;
+  element.className = `alert alert-${type} on`;
 }
 
-function onLogin(){
-  $('panel-login').classList.remove('active');
-  $('tabs').style.display='flex';
-  $('user-chip').style.display='flex';
-  $('user-email-lbl').textContent=AUTH.email;
-  $('logout-btn').style.display='inline-flex';
-  const d=new Date();d.setDate(d.getDate()+1);
-  const ds=d.toISOString().split('T')[0];
-  ['o-date','pc-date','pf-date'].forEach(id=>{const e=$(id);if(e)e.value=ds});
-  document.querySelector('.tab').click();
-}
-
-function doLogout(){
-  AUTH=null;CATALOG=[];CART={};CUR_ORDER=null;
-  $('tabs').style.display='none';$('user-chip').style.display='none';$('logout-btn').style.display='none';
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  $('panel-login').classList.add('active');
-}
-
-// ── TABS ──
-function showTab(el){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');
-  $(el.dataset.panel).classList.add('active');
-  if(el.dataset.panel==='panel-order')renderOrderGrid();
-}
-
-// ── CATALOG ──
-function renderCatalog(){
-  const g=$('catalog-grid');
-  if(!CATALOG.length){g.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🍳</div><p>Busca o agrega platos para comenzar</p></div>';return}
-  g.innerHTML=CATALOG.map(p=>`
-    <div class="pcard">
-      <div class="pcard-id">dish_id numérico: <strong>${esc(p.numeric_id)}</strong></div>
-      <div class="pcard-name">${esc(p.name)}</div>
-      <div class="pcard-price">${fmt(p.price)}</div>
-      <div class="pcard-desc">${esc(p.description||'')}</div>
-      <div class="pcard-stock">Stock: ${p.stock} uds.</div>
-    </div>`).join('');
-}
-
-async function searchByName(){
-  clearAlert('a-cat');
-  const name=$('search-name').value.trim();
-  if(!name){alert_('a-cat','Ingresa un nombre para buscar');return}
-  const res=await api(`/api/products/by-name/?name=${encodeURIComponent(name)}`);
-  if(res.ok){
-    const p=res.data;
-    const existing=CATALOG.find(x=>x.product_id===String(p.product_id));
-    if(!existing){
-      CATALOG.push({numeric_id:CATALOG.length+1,product_id:String(p.product_id),name:p.name,price:parseFloat(p.price),stock:p.stock,description:p.description||''});
-    }
-    renderCatalog();
-    const numId=existing?.numeric_id||(CATALOG.length);
-    alert_('a-cat',`✓ "${p.name}" cargado. dish_id numérico asignado: ${numId}`,'ok');
-  }else{alert_('a-cat',`Plato no encontrado: "${name}"`)}
-}
-
-async function addProduct(){
-  clearAlert('a-cat');
-  const name=$('np-name').value.trim(),price=parseFloat($('np-price').value),stock=parseInt($('np-stock').value),desc=$('np-desc').value.trim();
-  if(!name||isNaN(price)||isNaN(stock)){alert_('a-cat','Nombre, precio y stock son obligatorios');return}
-  const res=await api('/api/products/','POST',{name,price,stock,description:desc});
-  if(res.ok){
-    const p=res.data,numId=CATALOG.length+1;
-    CATALOG.push({numeric_id:numId,product_id:String(p.product_id),name:p.name,price:parseFloat(p.price),stock:p.stock,description:p.description||''});
-    renderCatalog();toggleInlay('inlay-np');
-    ['np-name','np-price','np-stock','np-desc'].forEach(id=>$(id).value='');
-    alert_('a-cat',`✓ "${p.name}" creado. dish_id numérico: ${numId}`,'ok');
-  }else alert_('a-cat','Error: '+(res.data?.error||JSON.stringify(res.data)));
-}
-
-// ── ORDER ──
-function renderOrderGrid(){
-  const g=$('order-pgrid');
-  if(!CATALOG.length){g.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🍳</div><p>Carga platos desde el catálogo primero</p></div>';return}
-  g.innerHTML=CATALOG.map(p=>{
-    const inCart=CART[p.numeric_id];
-    return`<div class="pcard${inCart?' sel':''}" onclick="addToCart(${p.numeric_id})">
-      <div class="pcard-id">dish_id: ${p.numeric_id}</div>
-      <div class="pcard-name">${esc(p.name)}</div>
-      <div class="pcard-price">${fmt(p.price)}</div>
-      <div class="pcard-stock">Stock: ${p.stock}</div>
-      ${inCart?`<div class="pcard-badge">✓ En carrito (${inCart.qty})</div>`:''}
-    </div>`;
-  }).join('');
-}
-
-function addToCart(numId){
-  const p=CATALOG.find(x=>x.numeric_id===numId);if(!p)return;
-  if(CART[numId])CART[numId].qty++;else CART[numId]={name:p.name,qty:1,price:p.price};
-  renderCart();renderOrderGrid();
-}
-
-function addManualItem(){
-  const dishId=parseInt($('mi-id').value),name=$('mi-name').value.trim()||`Plato #${dishId}`;
-  const qty=parseInt($('mi-qty').value)||1,price=parseFloat($('mi-price').value);
-  if(isNaN(dishId)||isNaN(price)){alert_('a-order','Dish ID y precio son obligatorios');return}
-  if(CART[dishId])CART[dishId].qty+=qty;else CART[dishId]={name,qty,price};
-  renderCart();renderOrderGrid();
-}
-
-function changeQty(id,d){if(!CART[id])return;CART[id].qty+=d;if(CART[id].qty<=0)delete CART[id];renderCart();renderOrderGrid()}
-function removeCart(id){delete CART[id];renderCart();renderOrderGrid()}
-
-function renderCart(){
-  const list=$('cart-list'),sum=$('cart-summary'),keys=Object.keys(CART).map(Number);
-  if(!keys.length){list.innerHTML='<div class="empty" style="padding:16px"><div class="empty-icon">🛒</div><p style="font-size:12px">El pedido está vacío</p></div>';sum.style.display='none';return}
-  let total=0;
-  list.innerHTML=keys.map(id=>{const{name,qty,price}=CART[id];const sub=price*qty;total+=sub;
-    return`<div class="cart-item">
-      <div class="ci-name">${esc(name)} <span style="font-size:11px;color:var(--copper)">#${id}</span></div>
-      <div class="qty-row"><button class="qbtn" onclick="changeQty(${id},-1)">−</button><span class="qval">${qty}</span><button class="qbtn" onclick="changeQty(${id},1)">+</button></div>
-      <div class="ci-price">${fmt(sub)}</div>
-      <button class="ci-rm" onclick="removeCart(${id})">✕</button>
-    </div>`;}).join('');
-  sum.style.display='block';$('s-sub').textContent=fmt(total);$('s-total').textContent=fmt(total);
-}
-
-async function placeOrder(){
-  clearAlert('a-order');
-  const keys=Object.keys(CART).map(Number);
-  if(!keys.length){alert_('a-order','Agrega al menos un plato');return}
-  const address=$('o-address').value.trim(),date=$('o-date').value;
-  if(!address){alert_('a-order','Ingresa la dirección de entrega');return}
-  if(!date){alert_('a-order','Selecciona la fecha de entrega');return}
-  const items=keys.map(id=>({dish_id:id,quantity:CART[id].qty,unit_price:CART[id].price}));
-  setLoading('place-btn',true);
-  const res=await api('/api/orders/','POST',{items,address,date});
-  setLoading('place-btn',false,'Confirmar pedido');
-  const box=$('order-result');box.classList.add('on');
-  if(res.ok){
-    CUR_ORDER=res.data.order_id;
-    $('r-icon').textContent='🎉';$('r-title').textContent='¡Pedido creado con éxito!';
-    $('r-badge-wrap').innerHTML=`<div class="r-badge">Pedido #${res.data.order_id}</div>`;
-    $('r-msg').textContent=`Stock de producción reservado dentro de una transacción atómica. Fecha de entrega: ${date}.`;
-    $('lookup-id').value=res.data.order_id;
-  }else if(res.status===409){
-    $('r-icon').textContent='⚠️';$('r-title').textContent='Stock de producción insuficiente';
-    $('r-badge-wrap').innerHTML='';
-    $('r-msg').textContent=res.data?.error||'No hay cupos suficientes en producción para uno de los platos seleccionados en esa fecha.';
-  }else{
-    $('r-icon').textContent='❌';$('r-title').textContent='Error al crear el pedido';
-    $('r-badge-wrap').innerHTML='';
-    $('r-msg').textContent=res.data?.error||JSON.stringify(res.data);
+function clearAlert(id) {
+  const element = $(id);
+  if (element) {
+    element.className = "alert";
   }
 }
 
-function resetOrder(){CART={};renderCart();renderOrderGrid();$('order-result').classList.remove('on');clearAlert('a-order');$('o-address').value=''}
-
-// ── LOOKUP ──
-async function lookupOrder(){
-  clearAlert('a-lookup');
-  const id=$('lookup-id').value;if(!id){alert_('a-lookup','Ingresa un ID de pedido');return}
-  const res=await api(`/api/orders/${id}/`);
-  if(res.ok){CUR_ORDER=parseInt(id);renderDetail(res.data)}
-  else if(res.status===404){alert_('a-lookup',`No se encontró el pedido #${id}`);$('order-detail').style.display='none'}
-  else if(res.status===403){alert_('a-lookup','No tienes permiso para ver este pedido');$('order-detail').style.display='none'}
-  else alert_('a-lookup',res.data?.error||JSON.stringify(res.data));
+function setLoading(id, on) {
+  const button = $(id);
+  if (!button) {
+    return;
+  }
+  if (!button.dataset.label) {
+    button.dataset.label = button.innerHTML;
+  }
+  button.disabled = on;
+  button.innerHTML = on ? '<div class="spin"></div>' : button.dataset.label;
 }
 
-function renderDetail(o){
-  $('order-detail').style.display='block';
-  $('d-id').textContent=o.order_id;$('d-date').textContent=o.date;$('d-addr').textContent=o.address;
-  $('d-status').innerHTML=`<span class="badge badge-${o.status}">${o.status}</span>`;
-  $('d-items').innerHTML=(o.items||[]).map(i=>`<tr><td>${i.dish_id}</td><td>${i.quantity}</td><td>${fmt(i.unit_price)}</td><td>${fmt(i.unit_price*i.quantity)}</td></tr>`).join('');
-  $('d-total').textContent=fmt(o.total||0);
+function toggleInlay(id) {
+  const element = $(id);
+  element.style.display =
+    element.style.display === "none" || !element.style.display ? "block" : "none";
 }
 
-async function doConfirm(){if(!CUR_ORDER)return;clearAlert('a-action');const res=await api(`/api/orders/${CUR_ORDER}/confirm/`,'PATCH');if(res.ok){alert_('a-action',`✓ Pedido #${CUR_ORDER} confirmado`,'ok');lookupOrder()}else alert_('a-action',res.data?.error||'Error al confirmar')}
-async function doCancel(){if(!CUR_ORDER)return;clearAlert('a-action');const res=await api(`/api/orders/${CUR_ORDER}/cancel/`,'PATCH');if(res.ok){alert_('a-action',`Pedido #${CUR_ORDER} cancelado`,'inf');lookupOrder()}else alert_('a-action',res.data?.error||'Error al cancelar')}
-async function doValidateStock(){if(!CUR_ORDER)return;clearAlert('a-action');const res=await api(`/api/orders/${CUR_ORDER}/validate-stock/`);if(res.ok)alert_('a-action','✓ '+res.data?.detail,'ok');else alert_('a-action',res.data?.error||'Error al validar')}
+function errorMessage(payload, fallback = gettext("Ocurrió un error inesperado.")) {
+  if (!payload) {
+    return fallback;
+  }
+  if (typeof payload === "string") {
+    return payload;
+  }
+  if (payload.error) {
+    return payload.error;
+  }
+  if (payload.detail) {
+    return payload.detail;
+  }
 
-// ── PRODUCTION ──
-async function loadProd(){clearAlert('a-prod');const dish=$('pf-dish').value,date=$('pf-date').value;let q='';if(dish)q+=`dish_id=${dish}&`;if(date)q+=`date=${date}&`;const res=await api(`/api/production/?${q}`);if(res.ok)renderProdTable(res.data);else alert_('a-prod',res.data?.error||'Error al cargar')}
-async function loadAllProd(){clearAlert('a-prod');const res=await api('/api/production/');if(res.ok)renderProdTable(res.data);else alert_('a-prod',res.data?.error||'Error al cargar')}
+  const firstKey = Object.keys(payload)[0];
+  if (!firstKey) {
+    return fallback;
+  }
 
-function renderProdTable(records){
-  if(!records||!records.length){$('prod-tbl').innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>Sin registros para los filtros aplicados</p></div>';return}
-  $('prod-tbl').innerHTML=`<table><thead><tr><th>ID Prod.</th><th>Dish ID</th><th>Fecha</th><th>Cupos</th></tr></thead><tbody>${records.map(r=>{const u=r.available_units,cls=u===0?'pb-out':u<10?'pb-lo':'pb-hi',lbl=u===0?'0 – Sin cupos':u<10?`${u} – Bajo`:`${u} – Disponible`;return`<tr><td>${r.production_id}</td><td>${r.dish_id}</td><td>${r.date}</td><td><span class="pb ${cls}">${lbl}</span></td></tr>`}).join('')}</tbody></table>`;
+  const value = payload[firstKey];
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => (typeof item === "string" ? item : JSON.stringify(item)))
+      .join(" ");
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  return fallback;
 }
 
-async function createProd(){
-  clearAlert('a-prod-create');
-  const dish=parseInt($('pc-dish').value),date=$('pc-date').value,units=parseInt($('pc-units').value);
-  if(isNaN(dish)||!date||isNaN(units)){alert_('a-prod-create','Completa todos los campos');return}
-  const res=await api('/api/production/','POST',{dish_id:dish,date,available_units:units});
-  if(res.ok){alert_('a-prod-create',`✓ ${units} cupos para dish_id ${dish} el ${date}`,'ok');$('pc-dish').value='';$('pc-units').value='';loadProd()}
-  else alert_('a-prod-create','Error: '+(res.data?.error||JSON.stringify(res.data)));
+function emptyState(icon, message, extraStyle = "") {
+  return `<div class="empty" style="${extraStyle}"><div class="empty-icon">${icon}</div><p>${message}</p></div>`;
 }
 
-async function adjustProd(){
-  clearAlert('a-prod-adj');
-  const id=parseInt($('pa-id').value),units=parseInt($('pa-units').value);
-  if(isNaN(id)||isNaN(units)){alert_('a-prod-adj','Completa todos los campos');return}
-  const res=await api(`/api/production/${id}/`,'PATCH',{available_units:units});
-  if(res.ok){alert_('a-prod-adj',`✓ Cupos ajustados a ${res.data?.available_units}`,'ok');loadProd()}
-  else alert_('a-prod-adj','Error: '+(res.data?.error||JSON.stringify(res.data)));
+function setResult(icon, title, message, badge = "") {
+  $("order-result").classList.add("on");
+  $("r-icon").textContent = icon;
+  $("r-title").textContent = title;
+  $("r-badge-wrap").innerHTML = badge ? `<div class="r-badge">${badge}</div>` : "";
+  $("r-msg").textContent = message;
 }
+
+async function api(path, method = "GET", body = null) {
+  const headers = { "Content-Type": "application/json" };
+  if (AUTH?.token) {
+    headers.Authorization = `Basic ${AUTH.token}`;
+  }
+  if (!SAFE_METHODS.has(method.toUpperCase())) {
+    headers["X-CSRFToken"] = getCsrfToken();
+  }
+
+  const options = { method, headers, credentials: "include" };
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+
+  try {
+    const response = await fetch(`${BASE()}${path}`, options);
+    let data = null;
+    try {
+      data = await response.json();
+    } catch (_) {}
+    if (response.status === 401 && AUTH) {
+      resetClientSession();
+    }
+    return { ok: response.ok, status: response.status, data };
+  } catch (error) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: formatList(gettext("Error de red: %s"), [error.message]) },
+    };
+  }
+}
+
+async function doLogin() {
+  clearAlert("a-login");
+  const email = $("l-email").value.trim();
+  const password = $("l-pass").value;
+  if (!email || !password) {
+    alert_("a-login", gettext("Completa email y contraseña"));
+    return;
+  }
+
+  setLoading("login-btn", true);
+
+
+  try {
+    const response = await api("/api/users/login/", "POST", { email, password });
+    if (response.ok) {
+      AUTH = { email: response.data?.email || email };
+      onLogin();
+    } else {
+      alert_("a-login", errorMessage(response.data, gettext("Credenciales incorrectas. Verifica tu email y contraseÃ±a.")));
+    }
+  } catch (_) {
+    alert_(
+      "a-login",
+      gettext("No se pudo conectar. Verifica que el backend esté corriendo y la URL sea correcta."),
+    );
+  } finally {
+    setLoading("login-btn", false);
+  }
+}
+
+async function doRegister() {
+  clearAlert("a-login");
+  const email = $("r-email").value.trim();
+  const password = $("r-pass").value;
+  if (!email || !password) {
+    alert_("a-login", gettext("Completa los campos de registro"));
+    return;
+  }
+
+  setLoading("register-btn", true);
+  try {
+    const response = await fetch(`${BASE()}/api/users/register/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+      credentials: "include",
+    });
+    const data = await response.json().catch(() => ({}));
+    if (response.ok) {
+      alert_("a-login", gettext("Cuenta creada. Ahora inicia sesión."), "ok");
+      $("l-email").value = email;
+      $("l-pass").value = password;
+    } else {
+      alert_("a-login", errorMessage(data));
+    }
+  } catch (error) {
+    alert_("a-login", formatList(gettext("Error de red: %s"), [error.message]));
+  } finally {
+    setLoading("register-btn", false);
+  }
+}
+
+function onLogin() {
+  $("panel-login").classList.remove("active");
+  $("tabs").style.display = "flex";
+  $("user-chip").style.display = "flex";
+  $("user-email-lbl").textContent = AUTH.email;
+  $("logout-btn").style.display = "inline-flex";
+
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  const nextDate = date.toISOString().split("T")[0];
+  ["o-date", "pc-date", "pf-date"].forEach((id) => {
+    const element = $(id);
+    if (element) {
+      element.value = nextDate;
+    }
+  });
+
+  document.querySelector(".tab").click();
+}
+
+function doLogout() {
+  AUTH = null;
+  CATALOG = [];
+  CART = {};
+  CUR_ORDER = null;
+
+  $("tabs").style.display = "none";
+  $("user-chip").style.display = "none";
+  $("logout-btn").style.display = "none";
+  document.querySelectorAll(".panel").forEach((panel) => panel.classList.remove("active"));
+  $("panel-login").classList.add("active");
+}
+
+function showTab(element) {
+  document.querySelectorAll(".tab").forEach((tab) => tab.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach((panel) => panel.classList.remove("active"));
+  element.classList.add("active");
+  $(element.dataset.panel).classList.add("active");
+  if (element.dataset.panel === "panel-order") {
+    renderOrderGrid();
+  }
+}
+
+function renderCatalog() {
+  const grid = $("catalog-grid");
+  if (!CATALOG.length) {
+    grid.innerHTML = emptyState("🍳", gettext("Busca o agrega platos para comenzar"), "grid-column:1/-1");
+    return;
+  }
+
+  grid.innerHTML = CATALOG.map((product) => `
+    <div class="pcard">
+      <div class="pcard-id">${gettext("dish_id numérico")}: <strong>${esc(product.numeric_id)}</strong></div>
+      <div class="pcard-name">${esc(product.name)}</div>
+      <div class="pcard-price">${fmt(product.price)}</div>
+      <div class="pcard-desc">${esc(product.description || "")}</div>
+      <div class="pcard-stock">${formatNamed(gettext("Stock: %(stock)s uds."), { stock: product.stock })}</div>
+    </div>
+  `).join("");
+}
+
+async function searchByName() {
+  clearAlert("a-cat");
+  const name = $("search-name").value.trim();
+  if (!name) {
+    alert_("a-cat", gettext("Ingresa un nombre para buscar"));
+    return;
+  }
+
+  setLoading("search-btn", true);
+  try {
+    const response = await api(`/api/products/by-name/?name=${encodeURIComponent(name)}`);
+    if (response.ok) {
+      const product = response.data;
+      const existing = CATALOG.find((entry) => entry.product_id === String(product.product_id));
+      if (!existing) {
+        CATALOG.push({
+          numeric_id: CATALOG.length + 1,
+          product_id: String(product.product_id),
+          name: product.name,
+          price: parseFloat(product.price),
+          stock: product.stock,
+          description: product.description || "",
+        });
+      }
+      renderCatalog();
+      const numericId = existing?.numeric_id || CATALOG.length;
+      alert_(
+        "a-cat",
+        formatList(gettext('"%s" cargado. dish_id numérico asignado: %s'), [product.name, numericId]),
+        "ok",
+      );
+    } else {
+      alert_("a-cat", errorMessage(response.data, formatList(gettext('Plato no encontrado: "%s"'), [name])));
+    }
+  } finally {
+    setLoading("search-btn", false);
+  }
+}
+
+async function addProduct() {
+  clearAlert("a-cat");
+  const name = $("np-name").value.trim();
+  const price = parseFloat($("np-price").value);
+  const stock = parseInt($("np-stock").value, 10);
+  const description = $("np-desc").value.trim();
+
+  if (!name || Number.isNaN(price) || Number.isNaN(stock)) {
+    alert_("a-cat", gettext("Nombre, precio y stock son obligatorios"));
+    return;
+  }
+
+  setLoading("add-product-btn", true);
+  try {
+    const response = await api("/api/products/", "POST", {
+      name,
+      price,
+      stock,
+      description,
+    });
+    if (response.ok) {
+      const product = response.data;
+      const numericId = CATALOG.length + 1;
+      CATALOG.push({
+        numeric_id: numericId,
+        product_id: String(product.product_id),
+        name: product.name,
+        price: parseFloat(product.price),
+        stock: product.stock,
+        description: product.description || "",
+      });
+      renderCatalog();
+      toggleInlay("inlay-np");
+      ["np-name", "np-price", "np-stock", "np-desc"].forEach((id) => {
+        $(id).value = "";
+      });
+      alert_(
+        "a-cat",
+        formatList(gettext('"%s" creado. dish_id numérico: %s'), [product.name, numericId]),
+        "ok",
+      );
+    } else {
+      alert_("a-cat", errorMessage(response.data));
+    }
+  } finally {
+    setLoading("add-product-btn", false);
+  }
+}
+
+function renderOrderGrid() {
+  const grid = $("order-pgrid");
+  if (!CATALOG.length) {
+    grid.innerHTML = emptyState("🍳", gettext("Carga platos desde el catálogo primero"), "grid-column:1/-1");
+    return;
+  }
+
+  grid.innerHTML = CATALOG.map((product) => {
+    const inCart = CART[product.numeric_id];
+    return `
+      <div class="pcard${inCart ? " sel" : ""}" onclick="addToCart(${product.numeric_id})">
+        <div class="pcard-id">${gettext("dish_id")}: ${product.numeric_id}</div>
+        <div class="pcard-name">${esc(product.name)}</div>
+        <div class="pcard-price">${fmt(product.price)}</div>
+        <div class="pcard-stock">${formatNamed(gettext("Stock: %(stock)s"), { stock: product.stock })}</div>
+        ${inCart ? `<div class="pcard-badge">${formatNamed(gettext("En carrito (%(quantity)s)"), { quantity: inCart.qty })}</div>` : ""}
+      </div>
+    `;
+  }).join("");
+}
+
+function addToCart(numericId) {
+  const product = CATALOG.find((entry) => entry.numeric_id === numericId);
+  if (!product) {
+    return;
+  }
+  if (CART[numericId]) {
+    CART[numericId].qty += 1;
+  } else {
+    CART[numericId] = { name: product.name, qty: 1, price: product.price };
+  }
+  renderCart();
+  renderOrderGrid();
+}
+
+function addManualItem() {
+  const dishId = parseInt($("mi-id").value, 10);
+  const name = $("mi-name").value.trim() || formatList(gettext("Plato #%s"), [dishId]);
+  const quantity = parseInt($("mi-qty").value, 10) || 1;
+  const price = parseFloat($("mi-price").value);
+
+  if (Number.isNaN(dishId) || Number.isNaN(price)) {
+    alert_("a-order", gettext("Dish ID y precio son obligatorios"));
+    return;
+  }
+
+  if (CART[dishId]) {
+    CART[dishId].qty += quantity;
+  } else {
+    CART[dishId] = { name, qty: quantity, price };
+  }
+
+  renderCart();
+  renderOrderGrid();
+}
+
+function changeQty(id, delta) {
+  if (!CART[id]) {
+    return;
+  }
+  CART[id].qty += delta;
+  if (CART[id].qty <= 0) {
+    delete CART[id];
+  }
+  renderCart();
+  renderOrderGrid();
+}
+
+function removeCart(id) {
+  delete CART[id];
+  renderCart();
+  renderOrderGrid();
+}
+
+function renderCart() {
+  const list = $("cart-list");
+  const summary = $("cart-summary");
+  const keys = Object.keys(CART).map(Number);
+
+  if (!keys.length) {
+    list.innerHTML = emptyState("🛒", gettext("El pedido está vacío"), "padding:16px");
+    summary.style.display = "none";
+    return;
+  }
+
+  let total = 0;
+  list.innerHTML = keys.map((id) => {
+    const { name, qty, price } = CART[id];
+    const subtotal = price * qty;
+    total += subtotal;
+    return `
+      <div class="cart-item">
+        <div class="ci-name">${esc(name)} <span style="font-size:11px;color:var(--copper)">#${id}</span></div>
+        <div class="qty-row">
+          <button class="qbtn" onclick="changeQty(${id},-1)">−</button>
+          <span class="qval">${qty}</span>
+          <button class="qbtn" onclick="changeQty(${id},1)">+</button>
+        </div>
+        <div class="ci-price">${fmt(subtotal)}</div>
+        <button class="ci-rm" onclick="removeCart(${id})">✕</button>
+      </div>
+    `;
+  }).join("");
+
+  summary.style.display = "block";
+  $("s-sub").textContent = fmt(total);
+  $("s-total").textContent = fmt(total);
+}
+
+async function placeOrder() {
+  clearAlert("a-order");
+  const keys = Object.keys(CART).map(Number);
+  if (!keys.length) {
+    alert_("a-order", gettext("Agrega al menos un plato"));
+    return;
+  }
+
+  const address = $("o-address").value.trim();
+  const date = $("o-date").value;
+  if (!address) {
+    alert_("a-order", gettext("Ingresa la dirección de entrega"));
+    return;
+  }
+  if (!date) {
+    alert_("a-order", gettext("Selecciona la fecha de entrega"));
+    return;
+  }
+
+  const items = keys.map((id) => ({
+    dish_id: id,
+    quantity: CART[id].qty,
+    unit_price: CART[id].price,
+  }));
+
+  setLoading("place-btn", true);
+  try {
+    const response = await api("/api/orders/", "POST", { items, address, date });
+    if (response.ok) {
+      CUR_ORDER = response.data.order_id;
+      setResult(
+        "🎉",
+        gettext("¡Pedido creado con éxito!"),
+        formatList(
+          gettext("Stock de producción reservado dentro de una transacción atómica. Fecha de entrega: %s."),
+          [date],
+        ),
+        formatList(gettext("Pedido #%s"), [response.data.order_id]),
+      );
+      $("lookup-id").value = response.data.order_id;
+    } else if (response.status === 409) {
+      setResult(
+        "⚠️",
+        gettext("Stock de producción insuficiente"),
+        errorMessage(
+          response.data,
+          gettext("No hay cupos suficientes en producción para uno de los platos seleccionados en esa fecha."),
+        ),
+      );
+    } else {
+      setResult("❌", gettext("Error al crear el pedido"), errorMessage(response.data));
+    }
+  } finally {
+    setLoading("place-btn", false);
+  }
+}
+
+function resetOrder() {
+  CART = {};
+  CUR_ORDER = null;
+  renderCart();
+  renderOrderGrid();
+  $("order-result").classList.remove("on");
+  clearAlert("a-order");
+  $("o-address").value = "";
+}
+
+async function lookupOrder() {
+  clearAlert("a-lookup");
+  const id = $("lookup-id").value;
+  if (!id) {
+    alert_("a-lookup", gettext("Ingresa un ID de pedido"));
+    return;
+  }
+
+  setLoading("lookup-btn", true);
+  try {
+    const response = await api(`/api/orders/${id}/`);
+    if (response.ok) {
+      CUR_ORDER = parseInt(id, 10);
+      renderDetail(response.data);
+    } else if (response.status === 404) {
+      alert_("a-lookup", formatList(gettext("No se encontró el pedido #%s"), [id]));
+      $("order-detail").style.display = "none";
+    } else if (response.status === 403) {
+      alert_("a-lookup", gettext("No tienes permiso para ver este pedido"));
+      $("order-detail").style.display = "none";
+    } else {
+      alert_("a-lookup", errorMessage(response.data));
+    }
+  } finally {
+    setLoading("lookup-btn", false);
+  }
+}
+
+function renderDetail(order) {
+  $("order-detail").style.display = "block";
+  $("d-id").textContent = order.order_id;
+  $("d-date").textContent = order.date;
+  $("d-addr").textContent = order.address;
+  $("d-status").innerHTML = `<span class="badge badge-${order.status}">${STATUS_LABELS[order.status] || order.status}</span>`;
+  $("d-items").innerHTML = (order.items || [])
+    .map(
+      (item) => `<tr><td>${item.dish_id}</td><td>${item.quantity}</td><td>${fmt(item.unit_price)}</td><td>${fmt(item.unit_price * item.quantity)}</td></tr>`,
+    )
+    .join("");
+  $("d-total").textContent = fmt(order.total || 0);
+}
+
+async function doConfirm() {
+  if (!CUR_ORDER) {
+    return;
+  }
+  clearAlert("a-action");
+  setLoading("confirm-btn", true);
+  try {
+    const response = await api(`/api/orders/${CUR_ORDER}/confirm/`, "PATCH");
+    if (response.ok) {
+      alert_("a-action", formatList(gettext("Pedido #%s confirmado"), [CUR_ORDER]), "ok");
+      await lookupOrder();
+    } else {
+      alert_("a-action", errorMessage(response.data, gettext("Error al confirmar")));
+    }
+  } finally {
+    setLoading("confirm-btn", false);
+  }
+}
+
+async function doCancel() {
+  if (!CUR_ORDER) {
+    return;
+  }
+  clearAlert("a-action");
+  setLoading("cancel-btn", true);
+  try {
+    const response = await api(`/api/orders/${CUR_ORDER}/cancel/`, "PATCH");
+    if (response.ok) {
+      alert_("a-action", formatList(gettext("Pedido #%s cancelado"), [CUR_ORDER]), "inf");
+      await lookupOrder();
+    } else {
+      alert_("a-action", errorMessage(response.data, gettext("Error al cancelar")));
+    }
+  } finally {
+    setLoading("cancel-btn", false);
+  }
+}
+
+async function doValidateStock() {
+  if (!CUR_ORDER) {
+    return;
+  }
+  clearAlert("a-action");
+  setLoading("validate-btn", true);
+  try {
+    const response = await api(`/api/orders/${CUR_ORDER}/validate-stock/`);
+    if (response.ok) {
+      alert_("a-action", response.data?.detail || gettext("Stock validado correctamente."), "ok");
+    } else {
+      alert_("a-action", errorMessage(response.data, gettext("Error al validar")));
+    }
+  } finally {
+    setLoading("validate-btn", false);
+  }
+}
+
+async function loadProd() {
+  clearAlert("a-prod");
+  const dish = $("pf-dish").value;
+  const date = $("pf-date").value;
+  let query = "";
+  if (dish) {
+    query += `dish_id=${dish}&`;
+  }
+  if (date) {
+    query += `date=${date}&`;
+  }
+
+  setLoading("filter-prod-btn", true);
+  try {
+    const response = await api(`/api/production/?${query}`);
+    if (response.ok) {
+      renderProdTable(response.data);
+    } else {
+      alert_("a-prod", errorMessage(response.data, gettext("Error al cargar")));
+    }
+  } finally {
+    setLoading("filter-prod-btn", false);
+  }
+}
+
+async function loadAllProd() {
+  clearAlert("a-prod");
+  setLoading("all-prod-btn", true);
+  try {
+    const response = await api("/api/production/");
+    if (response.ok) {
+      renderProdTable(response.data);
+    } else {
+      alert_("a-prod", errorMessage(response.data, gettext("Error al cargar")));
+    }
+  } finally {
+    setLoading("all-prod-btn", false);
+  }
+}
+
+function renderProdTable(records) {
+  if (!records || !records.length) {
+    $("prod-tbl").innerHTML = emptyState("📋", gettext("Sin registros para los filtros aplicados"));
+    return;
+  }
+
+  $("prod-tbl").innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>${gettext("ID prod.")}</th>
+          <th>${gettext("Dish ID")}</th>
+          <th>${gettext("Fecha")}</th>
+          <th>${gettext("Cupos")}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${records
+          .map((record) => {
+            const units = record.available_units;
+            const badgeClass = units === 0 ? "pb-out" : units < 10 ? "pb-lo" : "pb-hi";
+            const label =
+              units === 0
+                ? gettext("0 - Sin cupos")
+                : units < 10
+                  ? formatList(gettext("%s - Bajo"), [units])
+                  : formatList(gettext("%s - Disponible"), [units]);
+            return `<tr><td>${record.production_id}</td><td>${record.dish_id}</td><td>${record.date}</td><td><span class="pb ${badgeClass}">${label}</span></td></tr>`;
+          })
+          .join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+async function createProd() {
+  clearAlert("a-prod-create");
+  const dish = parseInt($("pc-dish").value, 10);
+  const date = $("pc-date").value;
+  const units = parseInt($("pc-units").value, 10);
+  if (Number.isNaN(dish) || !date || Number.isNaN(units)) {
+    alert_("a-prod-create", gettext("Completa todos los campos"));
+    return;
+  }
+
+  setLoading("create-prod-btn", true);
+  try {
+    const response = await api("/api/production/", "POST", {
+      dish_id: dish,
+      date,
+      available_units: units,
+    });
+    if (response.ok) {
+      alert_(
+        "a-prod-create",
+        formatList(gettext("Se registraron %s cupos para dish_id %s el %s."), [units, dish, date]),
+        "ok",
+      );
+      $("pc-dish").value = "";
+      $("pc-units").value = "";
+      await loadProd();
+    } else {
+      alert_("a-prod-create", errorMessage(response.data));
+    }
+  } finally {
+    setLoading("create-prod-btn", false);
+  }
+}
+
+async function adjustProd() {
+  clearAlert("a-prod-adj");
+  const id = parseInt($("pa-id").value, 10);
+  const units = parseInt($("pa-units").value, 10);
+  if (Number.isNaN(id) || Number.isNaN(units)) {
+    alert_("a-prod-adj", gettext("Completa todos los campos"));
+    return;
+  }
+
+  setLoading("adjust-prod-btn", true);
+  try {
+    const response = await api(`/api/production/${id}/`, "PATCH", { available_units: units });
+    if (response.ok) {
+      alert_(
+        "a-prod-adj",
+        formatList(gettext("Cupos ajustados a %s."), [response.data?.available_units]),
+        "ok",
+      );
+      await loadProd();
+    } else {
+      alert_("a-prod-adj", errorMessage(response.data));
+    }
+  } finally {
+    setLoading("adjust-prod-btn", false);
+  }
+}
+
 </script>
 </body>
 </html>

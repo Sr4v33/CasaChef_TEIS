@@ -15,6 +15,7 @@ import os
 load_dotenv()
 
 from pathlib import Path
+from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +30,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG") == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1").split(",")
 
 LOGIN_REDIRECT_URL = '/api/'
 
@@ -59,6 +60,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -119,13 +121,23 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "es"
 
-TIME_ZONE = "UTC"
+LANGUAGES = [
+    ("es", _("Spanish")),
+    ("en", _("English")),
+]
+
+TIME_ZONE = "America/Bogota"
 
 USE_I18N = True
 
 USE_TZ = True
+
+LOCALE_PATHS = [BASE_DIR / "locale"]
+
+LANGUAGE_COOKIE_NAME = "casachef_language"
+LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 365
 
 
 # Static files (CSS, JavaScript, Images)
@@ -141,8 +153,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ─── DRF Settings ─────────────────────────────────────────────────────────────
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.BasicAuthentication",
-        # "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
@@ -161,3 +173,10 @@ RECOMMENDATIONS_SERVICE_URL = os.getenv(
     "http://127.0.0.1:5001",
 )
 INTEGRATION_HTTP_TIMEOUT = float(os.getenv("INTEGRATION_HTTP_TIMEOUT", "3"))
+
+
+# ─── Celery ───────────────────────────────────────────────────────────────────
+CELERY_BROKER_URL    = os.getenv("REDIS_URL", "redis://redis:6379/0")
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_TASK_SERIALIZER   = "json"
+CELERY_ACCEPT_CONTENT    = ["json"]

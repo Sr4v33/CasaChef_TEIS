@@ -1,5 +1,6 @@
 import uuid
 from typing import Optional, List
+from django.utils.translation import gettext_lazy as _
 
 from .address import Address
 from .customer import CustomerProfile
@@ -36,19 +37,19 @@ class User:
 
     def _validate_email(self, value: str) -> str:
         if not value or "@" not in value:
-            raise ValueError("Invalid email")
+            raise ValueError(_("Correo electrónico inválido"))
         return value.strip().lower()
 
     # Rol del usuario
 
     def add_customer_profile(self, profile: CustomerProfile):
         if self.customer_profile:
-            raise ValueError("User already has a customer profile")
+            raise ValueError(_("El usuario ya tiene un perfil de cliente"))
         self.customer_profile = profile
 
     def add_cook_profile(self, profile: CookProfile):
         if self.cook_profile:
-            raise ValueError("User already has a cook profile")
+            raise ValueError(_("El usuario ya tiene un perfil de cocinero"))
         self.cook_profile = profile
 
     def is_customer(self) -> bool:

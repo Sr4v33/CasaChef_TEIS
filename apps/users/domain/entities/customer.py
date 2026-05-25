@@ -1,3 +1,6 @@
+from django.utils.translation import gettext_lazy as _
+
+
 class CustomerProfile:
     def __init__(self, full_name: str, phone: str):
         self.full_name = self._validate_name(full_name)
@@ -5,12 +8,12 @@ class CustomerProfile:
 
     def _validate_name(self, value: str) -> str:
         if not value or not value.strip():
-            raise ValueError("full_name cannot be empty")
+            raise ValueError(_("full_name no puede estar vacío"))
         return value.strip()
 
     def _validate_phone(self, value: str) -> str:
         if not value or len(value.strip()) < 7:
-            raise ValueError("Invalid phone number")
+            raise ValueError(_("Número de teléfono inválido"))
         return value.strip()
 
     def update_phone(self, new_phone: str):

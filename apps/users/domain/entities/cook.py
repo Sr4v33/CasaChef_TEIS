@@ -1,3 +1,6 @@
+from django.utils.translation import gettext_lazy as _
+
+
 class CookProfile:
     def __init__(self, name: str, specialty: str):
         self.name = self._validate_name(name)
@@ -5,12 +8,12 @@ class CookProfile:
 
     def _validate_name(self, value: str) -> str:
         if not value or not value.strip():
-            raise ValueError("name cannot be empty")
+            raise ValueError(_("name no puede estar vacío"))
         return value.strip()
 
     def _validate_specialty(self, value: str) -> str:
         if not value or not value.strip():
-            raise ValueError("specialty cannot be empty")
+            raise ValueError(_("specialty no puede estar vacío"))
         return value.strip()
 
     def change_specialty(self, new_specialty: str):

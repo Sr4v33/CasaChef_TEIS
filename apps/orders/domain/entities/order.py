@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List
+from django.utils.translation import gettext_lazy as _
 
 from apps.orders.domain.entities.order_item import OrderItemEntity
 from apps.orders.domain.exceptions import InvalidOrderTransition
@@ -30,14 +31,15 @@ class OrderEntity:
         """Confirma la orden. Solo es válido desde estado PENDING."""
         if self.status != "PENDING":
             raise InvalidOrderTransition(
-                f"No se puede confirmar una orden en estado '{self.status}'"
+                _("No se puede confirmar una orden en estado '%(status)s'")
+                % {"status": self.status}
             )
         self.status = "CONFIRMED"
 
     def cancel(self) -> None:
         """Cancela la orden. Válido desde PENDING o CONFIRMED."""
         if self.status == "CANCELLED":
-            raise InvalidOrderTransition("La orden ya está cancelada")
+            raise InvalidOrderTransition(_("La orden ya está cancelada"))
         self.status = "CANCELLED"
 
     # ------------------------------------------

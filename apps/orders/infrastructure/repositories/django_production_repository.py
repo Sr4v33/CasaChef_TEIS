@@ -1,5 +1,6 @@
 from apps.orders.domain.ports.production_repository_port import ProductionRepository
 from apps.production.infrastructure.models.daily_production_model import DailyProductionModel
+from django.utils.translation import gettext_lazy as _
 
 
 class DjangoProductionRepository(ProductionRepository):
@@ -11,7 +12,10 @@ class DjangoProductionRepository(ProductionRepository):
             .get(dish_id=dish_id, date=date)
         )
         if production.available_units < quantity:
-            raise ValueError(f"Cupos insuficientes para el plato {dish_id}")
+            raise ValueError(
+                _("Cupos insuficientes para el plato %(dish_id)s")
+                % {"dish_id": dish_id}
+            )
         production.available_units -= quantity
         production.save()
 

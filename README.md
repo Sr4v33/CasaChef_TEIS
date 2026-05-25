@@ -1,102 +1,98 @@
-# 🍳 CasaChef
+# CasaChef
 
-**CasaChef** es una plataforma digital que conecta 👨‍🍳 *cocineros locales* con 👥 *clientes* que buscan **comida casera preparada bajo pedido**.
+CasaChef es una plataforma para gestionar platos caseros bajo pedido con foco en producción diaria, control de cupos y trazabilidad del ciclo de vida de cada orden.
 
-Funciona como un **marketplace transaccional** enfocado en la **gestión real del negocio del cocinero**, permitiendo controlar:
+## Qué incluye este proyecto
 
-- 🗓️ Producción diaria  
-- 🔢 Cupos disponibles  
-- 🔄 Ciclo completo del pedido  
+- Gestión de productos, producción, pedidos, pagos, usuarios y carrito.
+- Reserva de cupos de producción en transacciones atómicas al crear pedidos.
+- Procesos asíncronos con Celery + Redis para notificaciones y reporte diario de pedidos.
+- Soporte bilingüe `es/en` con Django i18n y selector de idioma en la interfaz.
+- Panel web único para catálogo, creación de pedidos, consulta y producción.
 
-Todo esto evitando **sobreventas** y garantizando **trazabilidad** en cada orden.
+## Stack principal
 
-A diferencia de las plataformas tradicionales de domicilios 🚴‍♂️, **CasaChef prioriza el dominio del negocio**:  
-👉 producción  
-👉 disponibilidad  
-👉 estados del pedido  
+- Django 5
+- Django REST Framework
+- Celery 5
+- Redis 7
+- SQLite
+- Docker Compose
 
----
+## Variables de entorno
 
-## ✨ Características Principales
+Usa `env-ejemplo.txt` como base para crear `.env`.
 
-- 🍽️ Publicación de platos con **producción diaria limitada**
-- 🔒 Control de cupos y **cierre automático de ventas**
-- 📦 Gestión del **ciclo completo del pedido**
-- 🧩 Separación clara entre **platos, producción y pedidos**
-- 🚀 Arquitectura preparada para **escalar con nuevos módulos**
+Variables relevantes:
 
----
+- `DEBUG=True`
+- `SECRET_KEY=...`
+- `PAYMENT_PROVIDER=MOCK`
+- `ENV_TYPE=DEV`
+- `NOTIFIER=CONSOLE`
+- `REDIS_URL=redis://redis:6379/0`
+- `RECOMMENDATIONS_SERVICE_URL=http://127.0.0.1:5001`
+- `INTEGRATION_HTTP_TIMEOUT=3`
 
-## 🛠️ Tecnologías
+`NOTIFIER` acepta `CONSOLE` o `EMAIL`. Si no se define, el proyecto cae en `ENV_TYPE` para decidir el notifier.
 
-- 🐍 **Python 3**
-- 🌐 **Django**
-- 🗄️ **SQLite** (entorno de desarrollo)
+## Levantar con Docker
 
----
+1. Crea `.env` en la raíz del proyecto.
+2. Ejecuta:
 
-## 🗂️ Estructura del Proyecto
-
-```text
-casachef/
-│
-├── apps/
-│   ├── cooks        # Gestión de cocineros
-│   ├── dishes       # Platos
-│   ├── orders       # Pedidos
-│   ├── production   # Producción diaria
-│   └── users        # Usuarios
-│
-├── config/
-├── manage.py
-├── requirements.txt
-
-```
-## ⚙️ Instalación y Ejecución Local
-
-### 1️⃣ Clonar el Repositorio
-```
-git clone https://github.com/Sr4v33/CasaChef---TEIS
-cd casaChef
+```bash
+docker compose up --build
 ```
 
-### 2️⃣ Crear Entorno Virtual
-```
-python -m venv venv
-```
-#### Activar el entorno: 
-- 🪟 Windows:
-```
-venv\Scripts\activate
-```
-- 🐧 Linux/macOS
-```
-source venv/bin/activate
-```
+Servicios levantados:
 
-### 3️⃣ Instalar Dependencias
-```
-pip install -r requirements.txt
-```
+- `django`: aplicación principal
+- `celery`: worker asíncrono
+- `redis`: broker y backend de resultados
+- `recommendations`: microservicio de recomendaciones
+- `nginx`: entrada pública
 
-### 4️⃣ Configurar Variables de Entorno
-Crear un achivo ```.env``` en la raíz:
-```
-DEBUG=True
-SECRET_KEY=your-secret-key
-```
+## Ejecución local
 
-### 5️⃣ Migraciones y Ejecución
-Crear un achivo ```.env``` en la raíz:
-```
+La ruta recomendada para desarrollo completo es Docker, porque levanta Django, Redis, Celery y el microservicio juntos.
+
+Si quieres correr partes por separado:
+
+```bash
 python manage.py migrate
-python manage.py createsuperuser
 python manage.py runserver
+celery -A config worker -l info --concurrency=2
 ```
-#### 🔗 Accesos: 
-- App Principal: ```http://127.0.0.1:8000/```
-- Panel Admin: ```http://127.0.0.1:8000/admin```
 
+## Internacionalización
 
-## 🚧 Estado del Proyecto
-Proyecto en fase inicial de construcción del **dominio** y **reglas de negocio**.
+La app usa `LocaleMiddleware`, selector de idioma y archivos de traducción bajo `locale/en/LC_MESSAGES/`.
+
+Para compilar traducciones en Windows sin depender de `django-admin compilemessages`, se añadió:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\compile_translations.ps1
+```
+
+Esto genera:
+
+- `locale/en/LC_MESSAGES/django.mo`
+- `locale/en/LC_MESSAGES/djangojs.mo`
+
+## Procesos asíncronos
+
+Celery se usa para:
+
+- Notificaciones de pedidos `CREATED`, `CONFIRMED` y `CANCELLED`
+- Actualización de un reporte diario agregado por fecha de entrega
+
+Las tareas están en:
+
+- `apps/orders/infrastructure/tasks/notification_tasks.py`
+
+## Ruta principal
+
+- Panel web: `http://127.0.0.1:8000/`
+- Admin Django: `http://127.0.0.1:8000/admin/`
+- API root: `http://127.0.0.1:8000/api/`
