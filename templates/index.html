@@ -187,7 +187,8 @@ code{font-family:monospace;background:rgba(59,35,20,.07);padding:1px 5px;border-
   <div class="tab" data-panel="panel-catalog" data-roles="chef" onclick="showTab(this)">🍽 {% trans "Platos y menú" %}</div>
   <div class="tab" data-panel="panel-production" data-roles="chef,operations" onclick="showTab(this)">📊 {% trans "Plan del día" %}</div>
   <div class="tab" data-panel="panel-lookup" data-roles="customer,chef,operations" onclick="showTab(this)">🔍 {% trans "Buscar pedido" %}</div>
-  <div class="tab" data-panel="panel-ally" data-roles="customer,chef,operations" onclick="showTab(this)">{% trans "Endpoint Equipo Aliado" %}</div>
+  <div class="tab" data-panel="panel-ally" data-roles="customer,chef,operations" onclick="showTab(this)">🛒{% trans "Endpoint Equipo Aliado" %}</div>
+  <div class="tab" data-panel="panel-thirdparty" data-roles="customer,chef,operations" onclick="showTab(this)">🌍 {% trans "API Terceros" %}</div>
 </div>
 
 <div id="panel-login" class="panel active">
@@ -387,7 +388,27 @@ code{font-family:monospace;background:rgba(59,35,20,.07);padding:1px 5px;border-
     </div>
   </div>
 </div>
-
+<div id="panel-thirdparty" class="panel">
+  <div class="card">
+    <div class="card-header"><div class="ch-icon">🌍</div>{% trans "Información de país — API de terceros" %}</div>
+    <p style="font-size:13px;color:rgba(59,35,20,.55);margin-bottom:18px">
+      {% trans "Consulta datos de cualquier país via RestCountries (Patrón Adapter)." %}
+    </p>
+    <div id="tp-alert" class="alert"></div>
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <div class="field" style="flex:1;margin-bottom:0">
+        <label>{% trans "Código de país (ISO)" %}</label>
+        <input type="text" id="tp-country" placeholder="MX" maxlength="3" style="text-transform:uppercase">
+      </div>
+      <button class="btn btn-primary btn-sm" id="tp-btn" style="align-self:flex-end" onclick="loadCountryInfo()">
+        {% trans "Consultar" %}
+      </button>
+    </div>
+    <div id="tp-result" style="display:none">
+      <pre id="tp-json" style="background:rgba(59,35,20,.05);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:12px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--ink)"></pre>
+    </div>
+  </div>
+</div>
 
 </div>
 
@@ -1485,6 +1506,27 @@ async function loadAllyInfo() {
     }
   } finally {
     setLoading("ally-btn", false);
+  }
+}
+
+async function loadCountryInfo() {
+  clearAlert("tp-alert");
+  const code = $("tp-country").value.trim().toUpperCase();
+  if (!code) {
+    alert_("tp-alert", gettext("Ingresa un código de país"));
+    return;
+  }
+  setLoading("tp-btn", true);
+  try {
+    const response = await api(`/api/integrations/country/${code}/`);
+    if (response.ok) {
+      $("tp-result").style.display = "block";
+      $("tp-json").textContent = JSON.stringify(response.data, null, 2);
+    } else {
+      alert_("tp-alert", errorMessage(response.data, gettext("No se pudo obtener la información del país")));
+    }
+  } finally {
+    setLoading("tp-btn", false);
   }
 }
 
