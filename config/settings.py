@@ -129,11 +129,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "es"
 
-LANGUAGES = [
-    ("es", _("Spanish")),
-    ("en", _("English")),
-]
-
 TIME_ZONE = "America/Bogota"
 
 USE_I18N = True
@@ -141,8 +136,8 @@ USE_I18N = True
 USE_TZ = True
 
 LANGUAGES = [
-    ('es', 'Español'),
-    ('en', 'English'),
+    ("es", "Español"),
+    ("en", "English"),
 ]
 
 LOCALE_PATHS = [BASE_DIR / "locale"]

@@ -166,11 +166,11 @@ code{font-family:monospace;background:rgba(59,35,20,.07);padding:1px 5px;border-
     </div>
   </div>
   <div id="auth-status">
-    <form action="{% url 'set_language' %}" method="post" class="lang-form">
+    <form action="{% url 'set_language' %}" method="post" class="lang-form" id="lang-form">
       {% csrf_token %}
-      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <input type="hidden" name="next" id="lang-next" value="{{ request.get_full_path }}">
       <label class="sr-only" for="language-switch">{% trans "Idioma" %}</label>
-      <select id="language-switch" name="language" onchange="this.form.submit()">
+      <select id="language-switch" name="language" onchange="setLanguage(this.value)">
         {% get_current_language as CURRENT_LANGUAGE %}
         <option value="es" {% if CURRENT_LANGUAGE == "es" %}selected{% endif %}>ES</option>
         <option value="en" {% if CURRENT_LANGUAGE == "en" %}selected{% endif %}>EN</option>
@@ -217,6 +217,11 @@ code{font-family:monospace;background:rgba(59,35,20,.07);padding:1px 5px;border-
       <div class="wf-step"><strong>{% trans "Paso 2" %}</strong>{% trans "Anota el código numérico de la tarjeta." %}</div>
       <div class="wf-step"><strong>{% trans "Paso 3" %}</strong>{% trans "Abre cupos en Plan del día con ese código." %}</div>
     </div>
+    <div class="tip">
+      {% blocktranslate trimmed %}
+      Aquí gestionas la ficha del producto. El <strong>código numérico</strong> de cada tarjeta (estable en esta sesión) es el <code>dish_id</code> para producción y pedidos.
+      {% endblocktranslate %}
+    </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">
       <div style="display:flex;gap:6px;flex:1;min-width:200px">
         <div class="field" style="margin-bottom:0;flex:1"><label>{% trans "Buscar por nombre" %}</label><input type="text" id="search-name" placeholder="{% trans 'Ej: Bandeja paisa' %}" onkeydown="if(event.key==='Enter')searchByName()"></div>
@@ -254,6 +259,11 @@ code{font-family:monospace;background:rgba(59,35,20,.07);padding:1px 5px;border-
           <div class="wf-step"><strong>{% trans "Paso 1" %}</strong>{% trans "Elige platos (precio fijo del menú)." %}</div>
           <div class="wf-step"><strong>{% trans "Paso 2" %}</strong>{% trans "Indica dirección y fecha de entrega." %}</div>
           <div class="wf-step"><strong>{% trans "Paso 3" %}</strong>{% trans "Confirma el pedido." %}</div>
+        </div>
+        <div class="tip">
+          {% blocktranslate trimmed %}
+          Los <strong>cupos</strong> mostrados son los del plan del día para la fecha de entrega seleccionada (no el stock del catálogo). Cambia la fecha para ver disponibilidad actualizada.
+          {% endblocktranslate %}
         </div>
         <div id="order-pgrid" class="pgrid">
           <div class="empty" style="grid-column:1/-1"><div class="empty-icon">🍳</div><p>{% trans "Carga platos desde el catálogo primero" %}</p></div>
@@ -404,6 +414,33 @@ const getCsrfToken = () =>
         .find(c => c.startsWith('csrftoken='))
         ?.split('=')[1] || "";
 
+function syncCsrfForms() {
+  const token = getCsrfToken();
+  if (!token) {
+    return;
+  }
+  document.querySelectorAll('input[name="csrfmiddlewaretoken"]').forEach((input) => {
+    input.value = token;
+  });
+}
+
+function setLanguage(lang) {
+  syncCsrfForms();
+  const form = $("lang-form");
+  if (!form) {
+    return;
+  }
+  const langInput = form.querySelector('[name="language"]');
+  if (langInput) {
+    langInput.value = lang;
+  }
+  const nextInput = $("lang-next");
+  if (nextInput) {
+    nextInput.value = window.location.pathname + window.location.search;
+  }
+  form.submit();
+}
+
 const fmt = (value) =>
   new Intl.NumberFormat(LOCALE, {
     style: "currency",
@@ -535,13 +572,6 @@ async function api(path, method = "GET", body = null) {
   }
 }
 
-// function refreshCsrfTokenInForms() {
-//     const newToken = getCsrfToken();
-//     document.querySelectorAll('input[name="csrfmiddlewaretoken"]').forEach(input => {
-//         input.value = newToken;
-//     });
-// }
-
 async function doLogin() {
   clearAlert("a-login");
   const email = $("l-email").value.trim();
@@ -563,6 +593,7 @@ async function doLogin() {
         role: response.data?.ui_role || "customer",
       };
       sessionStorage.setItem('casachef_auth', JSON.stringify(AUTH));
+      syncCsrfForms();
       await onLogin();
     } else {
       alert_("a-login", errorMessage(response.data, gettext("Credenciales incorrectas. Verifica tu email y contraseña.")));
@@ -1421,6 +1452,8 @@ async function adjustProd() {
     setLoading("adjust-prod-btn", false);
   }
 }
+
+syncCsrfForms();
 
 if (AUTH) {
   void onLogin().catch((error) => {

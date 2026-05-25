@@ -385,3 +385,75 @@ msgstr "name cannot be empty"
 
 msgid "specialty no puede estar vacío"
 msgstr "specialty cannot be empty"
+
+msgid "Hacer pedido"
+msgstr "Place order"
+
+msgid "Platos y menú"
+msgstr "Menu & dishes"
+
+msgid "Plan del día"
+msgstr "Daily plan"
+
+msgid "Paso 1"
+msgstr "Step 1"
+
+msgid "Paso 2"
+msgstr "Step 2"
+
+msgid "Paso 3"
+msgstr "Step 3"
+
+msgid "Define el plato (nombre, precio, stock)."
+msgstr "Define the dish (name, price, stock)."
+
+msgid "Anota el código numérico de la tarjeta."
+msgstr "Note the numeric code on the card."
+
+msgid "Abre cupos en Plan del día con ese código."
+msgstr "Open capacity in Daily plan with that code."
+
+msgid "Aquí gestionas la ficha del producto. El <strong>código numérico</strong> de cada tarjeta (estable en esta sesión) es el <code>dish_id</code> para producción y pedidos."
+msgstr "Manage the product record here. Each card's <strong>numeric code</strong> (stable for this session) is the <code>dish_id</code> for production and orders."
+
+msgid "Elige platos (precio fijo del menú)."
+msgstr "Choose dishes (fixed menu price)."
+
+msgid "Indica dirección y fecha de entrega."
+msgstr "Enter delivery address and date."
+
+msgid "Confirma el pedido."
+msgstr "Confirm the order."
+
+msgid "Los <strong>cupos</strong> mostrados son los del plan del día para la fecha de entrega seleccionada (no el stock del catálogo). Cambia la fecha para ver disponibilidad actualizada."
+msgstr "The <strong>capacity</strong> shown is from the daily plan for the selected delivery date (not catalog stock). Change the date to refresh availability."
+
+msgid "Atajo de pedido (staff)"
+msgstr "Order shortcut (staff)"
+
+msgid "Solo para pruebas: indica el código del plato; si está en el menú cargado, nombre y precio se rellenan solos."
+msgstr "Testing only: enter the dish code; if it is in the loaded menu, name and price fill automatically."
+
+msgid "Código del plato"
+msgstr "Dish code"
+
+msgid "Nombre (referencia)"
+msgstr "Name (reference)"
+
+msgid "Precio unitario (menú)"
+msgstr "Unit price (menu)"
+
+msgid "Agregar al pedido"
+msgstr "Add to order"
+
+msgid "Código plato"
+msgstr "Dish code"
+
+msgid "Cupos disponibles por fecha. Usa el <strong>mismo código numérico</strong> que aparece en Platos y menú."
+msgstr "Capacity per date. Use the <strong>same numeric code</strong> shown in Menu & dishes."
+
+msgid "El <strong>código del plato</strong> es el número de la tarjeta en Platos y menú (ej. 1, 2, 3)."
+msgstr "The <strong>dish code</strong> is the number on the card in Menu & dishes (e.g. 1, 2, 3)."
+
+msgid "Usa los filtros o \"Ver todos\""
+msgstr "Use the filters or \"View all\""
