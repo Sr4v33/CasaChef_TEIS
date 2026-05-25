@@ -29,6 +29,16 @@ header{display:flex;align-items:center;justify-content:space-between;padding:30p
 .brand-tagline{font-size:11px;color:var(--copper);letter-spacing:2.5px;text-transform:uppercase;margin-top:2px}
 #auth-status{display:flex;align-items:center;gap:10px}
 #user-chip{display:none;align-items:center;gap:6px;background:var(--warm);border:1px solid var(--border);padding:6px 14px;border-radius:20px;font-size:13px;color:var(--espresso)}
+#role-badge{display:none;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:500;letter-spacing:.4px;text-transform:uppercase;border:1px solid var(--border);background:var(--paper);color:var(--copper)}
+#role-badge.on{display:inline-flex}
+.role-customer #role-badge.on{background:rgba(78,112,80,.08);color:var(--sage);border-color:rgba(78,112,80,.2)}
+.role-chef #role-badge.on{background:rgba(181,99,26,.09);color:var(--copper)}
+.role-operations #role-badge.on{background:rgba(59,35,20,.06);color:var(--espresso)}
+.workflow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.wf-step{flex:1;min-width:140px;padding:10px 12px;background:var(--warm);border:1px solid var(--border);border-radius:8px;font-size:12px;line-height:1.45}
+.wf-step strong{display:block;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--copper);margin-bottom:4px}
+.wf-step.done{opacity:.55}
+.card-role-hidden{display:none!important}
 .lang-form select{background:var(--paper);border:1px solid var(--border);border-radius:999px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--espresso);cursor:pointer}
 .lang-form select:focus{outline:none;box-shadow:0 0 0 3px rgba(181,99,26,.09);border-color:var(--copper)}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
@@ -37,6 +47,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:30p
 .tab{padding:10px 18px;cursor:pointer;font-size:12px;font-weight:500;color:rgba(59,35,20,.45);border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.5px;text-transform:uppercase;margin-bottom:-1px}
 .tab.active{color:var(--copper);border-bottom-color:var(--copper)}
 .tab:hover:not(.active){color:var(--ink)}
+.tab.tab-hidden{display:none}
 
 .panel{display:none}
 .panel.active{display:block;animation:rise .28s ease}
@@ -76,6 +87,9 @@ header{display:flex;align-items:center;justify-content:space-between;padding:30p
 .pcard:hover{border-color:var(--copper);transform:translateY(-2px);box-shadow:var(--shadow)}
 .pcard:hover::after,.pcard.sel::after{transform:scaleX(1)}
 .pcard.sel{border-color:var(--copper);background:rgba(181,99,26,.04)}
+.pcard-off{opacity:.52;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+.pcard-off::after{display:none}
+.pcard-off:hover{border-color:var(--border)}
 .pcard-id{font-size:10px;color:var(--copper);letter-spacing:.5px;margin-bottom:3px}
 .pcard-name{font-family:'Playfair Display',serif;font-size:14px;margin-bottom:4px}
 .pcard-price{font-size:17px;font-weight:500;color:var(--copper);margin-bottom:5px}
@@ -162,16 +176,17 @@ code{font-family:monospace;background:rgba(59,35,20,.07);padding:1px 5px;border-
         <option value="en" {% if CURRENT_LANGUAGE == "en" %}selected{% endif %}>EN</option>
       </select>
     </form>
+    <span id="role-badge"></span>
     <div id="user-chip"><span>👤</span><span id="user-email-lbl"></span></div>
     <button class="btn btn-ghost btn-sm" id="logout-btn" style="display:none" onclick="doLogout()">{% trans "Cerrar sesión" %}</button>
   </div>
 </header>
 
 <div class="tabs" id="tabs" style="display:none">
-  <div class="tab active" data-panel="panel-catalog" onclick="showTab(this)">🍽 {% trans "Catálogo" %}</div>
-  <div class="tab" data-panel="panel-order" onclick="showTab(this)">📋 {% trans "Nuevo pedido" %}</div>
-  <div class="tab" data-panel="panel-lookup" onclick="showTab(this)">🔍 {% trans "Buscar pedido" %}</div>
-  <div class="tab" data-panel="panel-production" onclick="showTab(this)">📊 {% trans "Producción" %}</div>
+  <div class="tab" data-panel="panel-order" data-roles="customer" onclick="showTab(this)">🛒 {% trans "Hacer pedido" %}</div>
+  <div class="tab" data-panel="panel-catalog" data-roles="chef" onclick="showTab(this)">🍽 {% trans "Platos y menú" %}</div>
+  <div class="tab" data-panel="panel-production" data-roles="chef,operations" onclick="showTab(this)">📊 {% trans "Plan del día" %}</div>
+  <div class="tab" data-panel="panel-lookup" data-roles="customer,chef,operations" onclick="showTab(this)">🔍 {% trans "Buscar pedido" %}</div>
 </div>
 
 <div id="panel-login" class="panel active">
@@ -197,10 +212,10 @@ code{font-family:monospace;background:rgba(59,35,20,.07);padding:1px 5px;border-
   <div class="card">
     <div class="card-header"><div class="ch-icon">🍽</div>{% trans "Catálogo de platos" %}</div>
     <div id="a-cat" class="alert"></div>
-    <div class="tip">
-      {% blocktranslate trimmed %}
-      El catálogo se gestiona localmente en la sesión. Usa <strong>Buscar por nombre</strong> para cargar platos existentes del backend. El <strong>ID numérico</strong> asignado es el que debes usar como <code>dish_id</code> en producción y pedidos.
-      {% endblocktranslate %}
+    <div class="workflow" id="wf-chef-catalog">
+      <div class="wf-step"><strong>{% trans "Paso 1" %}</strong>{% trans "Define el plato (nombre, precio, stock)." %}</div>
+      <div class="wf-step"><strong>{% trans "Paso 2" %}</strong>{% trans "Anota el código numérico de la tarjeta." %}</div>
+      <div class="wf-step"><strong>{% trans "Paso 3" %}</strong>{% trans "Abre cupos en Plan del día con ese código." %}</div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">
       <div style="display:flex;gap:6px;flex:1;min-width:200px">
@@ -235,23 +250,14 @@ code{font-family:monospace;background:rgba(59,35,20,.07);padding:1px 5px;border-
     <div>
       <div class="card">
         <div class="card-header"><div class="ch-icon">🍽</div>{% trans "Selecciona los platos" %}</div>
-        <div class="tip">{% blocktranslate trimmed %}Haz clic en una tarjeta para agregar al pedido. El <code>dish_id</code> numérico debe coincidir con un registro de producción activo para la fecha elegida.{% endblocktranslate %}</div>
+        <div class="workflow" id="wf-customer-order">
+          <div class="wf-step"><strong>{% trans "Paso 1" %}</strong>{% trans "Elige platos (precio fijo del menú)." %}</div>
+          <div class="wf-step"><strong>{% trans "Paso 2" %}</strong>{% trans "Indica dirección y fecha de entrega." %}</div>
+          <div class="wf-step"><strong>{% trans "Paso 3" %}</strong>{% trans "Confirma el pedido." %}</div>
+        </div>
         <div id="order-pgrid" class="pgrid">
           <div class="empty" style="grid-column:1/-1"><div class="empty-icon">🍳</div><p>{% trans "Carga platos desde el catálogo primero" %}</p></div>
         </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><div class="ch-icon">✏️</div>{% trans "Agregar ítem manualmente" %}</div>
-        <div class="tip">{% blocktranslate trimmed %}Usa esto si conoces el <code>dish_id</code> numérico directamente (la PK entera del plato en la base de datos).{% endblocktranslate %}</div>
-        <div class="row2">
-          <div class="field"><label>{% trans "Dish ID (número)" %}</label><input type="number" id="mi-id" placeholder="1" min="1"></div>
-          <div class="field"><label>{% trans "Nombre (referencia)" %}</label><input type="text" id="mi-name" placeholder="{% trans 'Plato del día' %}"></div>
-        </div>
-        <div class="row2">
-          <div class="field"><label>{% trans "Cantidad" %}</label><input type="number" id="mi-qty" placeholder="1" min="1" value="1"></div>
-          <div class="field"><label>{% trans "Precio unitario" %}</label><input type="number" id="mi-price" placeholder="18000" min="0.01" step="0.01"></div>
-        </div>
-        <button class="btn btn-ghost btn-sm" onclick="addManualItem()">+ {% trans "Agregar al pedido" %}</button>
       </div>
     </div>
     <div>
@@ -265,7 +271,7 @@ code{font-family:monospace;background:rgba(59,35,20,.07);padding:1px 5px;border-
         </div>
         <div class="div"></div>
         <div class="field"><label>{% trans "Dirección de entrega" %}</label><textarea id="o-address" placeholder="{% trans 'Calle 15 #45-78, Medellín, Antioquia' %}"></textarea></div>
-        <div class="field"><label>{% trans "Fecha de entrega" %}</label><input type="date" id="o-date"></div>
+        <div class="field"><label>{% trans "Fecha de entrega" %}</label><input type="date" id="o-date" onchange="onDeliveryDateChange()"></div>
         <button class="btn btn-primary btn-full" id="place-btn" onclick="placeOrder()">{% trans "Confirmar pedido" %}</button>
       </div>
     </div>
@@ -321,11 +327,11 @@ code{font-family:monospace;background:rgba(59,35,20,.07);padding:1px 5px;border-
         <div id="a-prod" class="alert"></div>
         <div class="tip">
           {% blocktranslate trimmed %}
-          Cada registro define cuántas unidades de un plato están disponibles en una fecha. El <strong>Dish ID</strong> es la PK numérica (entera) del plato en la base de datos.
+          Cupos disponibles por fecha. Usa el <strong>mismo código numérico</strong> que aparece en Platos y menú.
           {% endblocktranslate %}
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
-          <div class="field" style="margin-bottom:0"><label>{% trans "Dish ID" %}</label><input type="number" id="pf-dish" placeholder="1" style="width:90px"></div>
+          <div class="field" style="margin-bottom:0"><label>{% trans "Código plato" %}</label><input type="number" id="pf-dish" placeholder="1" style="width:90px"></div>
           <div class="field" style="margin-bottom:0"><label>{% trans "Fecha" %}</label><input type="date" id="pf-date"></div>
           <button class="btn btn-primary btn-sm" id="filter-prod-btn" style="align-self:flex-end" onclick="loadProd()">{% trans "Filtrar" %}</button>
           <button class="btn btn-ghost btn-sm" id="all-prod-btn" style="align-self:flex-end" onclick="loadAllProd()">{% trans "Ver todos" %}</button>
@@ -336,8 +342,8 @@ code{font-family:monospace;background:rgba(59,35,20,.07);padding:1px 5px;border-
     <div>
       <div class="card">
         <div class="card-header"><div class="ch-icon">➕</div>{% trans "Crear producción diaria" %}</div>
-        <div class="tip">{% blocktranslate trimmed %}El <strong>Dish ID</strong> debe ser el entero que la base de datos asignó al plato (visible en el admin de Django o con una consulta directa).{% endblocktranslate %}</div>
-        <div class="field"><label>{% trans "Dish ID (numérico)" %}</label><input type="number" id="pc-dish" placeholder="1" min="1"></div>
+        <div class="tip">{% blocktranslate trimmed %}El <strong>código del plato</strong> es el número de la tarjeta en Platos y menú (ej. 1, 2, 3).{% endblocktranslate %}</div>
+        <div class="field"><label>{% trans "Código del plato" %}</label><input type="number" id="pc-dish" placeholder="1" min="1"></div>
         <div class="field"><label>{% trans "Fecha" %}</label><input type="date" id="pc-date"></div>
         <div class="field"><label>{% trans "Unidades disponibles" %}</label><input type="number" id="pc-units" placeholder="50" min="0"></div>
         <button class="btn btn-primary btn-full" id="create-prod-btn" onclick="createProd()">{% trans "Crear registro" %}</button>
@@ -362,6 +368,26 @@ let AUTH = null;
 let CATALOG = [];
 let CART = {};
 let CUR_ORDER = null;
+/** Cupos del plan del día: dish_id (código) → unidades para la fecha de entrega elegida */
+let PRODUCTION_STOCK = {};
+
+const CATALOG_STORAGE_KEY = "casachef_catalog";
+
+const UI_ROLE_LABELS = {
+  customer: gettext("Cliente"),
+  chef: gettext("Chef"),
+  operations: gettext("Operaciones"),
+};
+
+const _savedAuth = sessionStorage.getItem('casachef_auth');
+if (_savedAuth) {
+    try {
+        AUTH = JSON.parse(_savedAuth);
+        if (AUTH && !AUTH.role) {
+            AUTH.role = "customer";
+        }
+    } catch(_) { AUTH = null; }
+}
 
 const $ = (id) => document.getElementById(id);
 const BASE = () => window.location.origin.replace(/\/$/, "");
@@ -373,7 +399,10 @@ const STATUS_LABELS = {
   CANCELLED: gettext("Cancelado"),
 };
 const getCsrfToken = () =>
-  document.querySelector('.lang-form input[name="csrfmiddlewaretoken"]')?.value || "";
+    document.cookie.split(';')
+        .map(c => c.trim())
+        .find(c => c.startsWith('csrftoken='))
+        ?.split('=')[1] || "";
 
 const fmt = (value) =>
   new Intl.NumberFormat(LOCALE, {
@@ -494,7 +523,7 @@ async function api(path, method = "GET", body = null) {
       data = await response.json();
     } catch (_) {}
     if (response.status === 401 && AUTH) {
-      resetClientSession();
+      doLogout();
     }
     return { ok: response.ok, status: response.status, data };
   } catch (error) {
@@ -505,6 +534,13 @@ async function api(path, method = "GET", body = null) {
     };
   }
 }
+
+// function refreshCsrfTokenInForms() {
+//     const newToken = getCsrfToken();
+//     document.querySelectorAll('input[name="csrfmiddlewaretoken"]').forEach(input => {
+//         input.value = newToken;
+//     });
+// }
 
 async function doLogin() {
   clearAlert("a-login");
@@ -521,10 +557,15 @@ async function doLogin() {
   try {
     const response = await api("/api/users/login/", "POST", { email, password });
     if (response.ok) {
-      AUTH = { email: response.data?.email || email };
-      onLogin();
+      AUTH = {
+        email: response.data?.email || email,
+        token: btoa(`${email}:${password}`),
+        role: response.data?.ui_role || "customer",
+      };
+      sessionStorage.setItem('casachef_auth', JSON.stringify(AUTH));
+      await onLogin();
     } else {
-      alert_("a-login", errorMessage(response.data, gettext("Credenciales incorrectas. Verifica tu email y contraseÃ±a.")));
+      alert_("a-login", errorMessage(response.data, gettext("Credenciales incorrectas. Verifica tu email y contraseña.")));
     }
   } catch (_) {
     alert_(
@@ -568,7 +609,125 @@ async function doRegister() {
   }
 }
 
-function onLogin() {
+function catalogEntryFromApi(product, numericId) {
+  return {
+    numeric_id: numericId,
+    product_id: String(product.product_id),
+    name: product.name,
+    price: parseFloat(product.price),
+    stock: product.stock,
+    description: product.description || "",
+  };
+}
+
+function catalogNumericIdMap(entries = CATALOG) {
+  const map = {};
+  entries.forEach((entry) => {
+    map[entry.product_id] = entry.numeric_id;
+  });
+  return map;
+}
+
+function nextCatalogNumericId(map) {
+  const ids = Object.values(map);
+  return ids.length ? Math.max(...ids) + 1 : 1;
+}
+
+function persistCatalog() {
+  sessionStorage.setItem(CATALOG_STORAGE_KEY, JSON.stringify(CATALOG));
+}
+
+function restoreCatalogFromStorage() {
+  const raw = sessionStorage.getItem(CATALOG_STORAGE_KEY);
+  if (!raw) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function upsertCatalogProduct(product) {
+  const productId = String(product.product_id);
+  const map = catalogNumericIdMap();
+  const existing = CATALOG.find((entry) => entry.product_id === productId);
+  const numericId = existing?.numeric_id ?? map[productId] ?? nextCatalogNumericId(map);
+
+  if (existing) {
+    Object.assign(existing, catalogEntryFromApi(product, numericId));
+  } else {
+    CATALOG.push(catalogEntryFromApi(product, numericId));
+  }
+  persistCatalog();
+  return numericId;
+}
+
+async function loadCatalogFromApi() {
+  const response = await api("/api/products/");
+  if (!response.ok) {
+    CATALOG = restoreCatalogFromStorage();
+    renderCatalog();
+    return;
+  }
+
+  const saved = restoreCatalogFromStorage();
+  const map = catalogNumericIdMap(saved);
+  let nextId = nextCatalogNumericId(map) - 1;
+
+  CATALOG = (response.data || []).map((product) => {
+    const productId = String(product.product_id);
+    const numericId = map[productId] ?? ++nextId;
+    map[productId] = numericId;
+    return catalogEntryFromApi(product, numericId);
+  });
+  persistCatalog();
+  renderCatalog();
+}
+
+async function roleCanSee(rolesAttr) {
+  if (!rolesAttr || !AUTH?.role) {
+    return false;
+  }
+  return rolesAttr.split(",").map((r) => r.trim()).includes(AUTH.role);
+}
+
+function applyRoleUI() {
+  const role = AUTH?.role || "customer";
+  document.body.classList.remove("role-customer", "role-chef", "role-operations");
+  document.body.classList.add(`role-${role}`);
+
+  const badge = $("role-badge");
+  if (badge) {
+    badge.textContent = UI_ROLE_LABELS[role] || role;
+    badge.classList.add("on");
+  }
+
+  document.querySelectorAll(".tab[data-roles]").forEach((tab) => {
+    tab.classList.toggle("tab-hidden", !roleCanSee(tab.dataset.roles));
+    tab.classList.remove("active");
+  });
+
+  document.querySelectorAll(".card-by-role[data-roles]").forEach((card) => {
+    card.classList.toggle("card-role-hidden", !roleCanSee(card.dataset.roles));
+  });
+
+  const firstTab = Array.from(document.querySelectorAll(".tab[data-roles]")).find(
+    (tab) => !tab.classList.contains("tab-hidden"),
+  );
+  document.querySelectorAll(".panel").forEach((panel) => panel.classList.remove("active"));
+  if (firstTab) {
+    firstTab.classList.add("active");
+    $(firstTab.dataset.panel).classList.add("active");
+    if (firstTab.dataset.panel === "panel-order") {
+      renderOrderGrid();
+    }
+  }
+}
+
+async function onLogin() {
   $("panel-login").classList.remove("active");
   $("tabs").style.display = "flex";
   $("user-chip").style.display = "flex";
@@ -585,14 +744,31 @@ function onLogin() {
     }
   });
 
-  document.querySelector(".tab").click();
+  try {
+    await loadCatalogFromApi();
+    await loadProductionForOrderDate();
+    applyRoleUI();
+  } catch (error) {
+    console.error("onLogin:", error);
+    alert_("a-login", gettext("Sesión iniciada, pero no se pudo cargar el menú. Recarga la página."), "err");
+    applyRoleUI();
+  }
 }
 
 function doLogout() {
+  sessionStorage.removeItem('casachef_auth');
+  sessionStorage.removeItem(CATALOG_STORAGE_KEY);
   AUTH = null;
   CATALOG = [];
   CART = {};
   CUR_ORDER = null;
+
+  document.body.classList.remove("role-customer", "role-chef", "role-operations");
+  const badge = $("role-badge");
+  if (badge) {
+    badge.classList.remove("on");
+    badge.textContent = "";
+  }
 
   $("tabs").style.display = "none";
   $("user-chip").style.display = "none";
@@ -602,13 +778,78 @@ function doLogout() {
 }
 
 function showTab(element) {
+  if (element.classList.contains("tab-hidden")) {
+    return;
+  }
   document.querySelectorAll(".tab").forEach((tab) => tab.classList.remove("active"));
   document.querySelectorAll(".panel").forEach((panel) => panel.classList.remove("active"));
   element.classList.add("active");
   $(element.dataset.panel).classList.add("active");
   if (element.dataset.panel === "panel-order") {
-    renderOrderGrid();
+    void loadProductionForOrderDate();
   }
+}
+
+function getDeliveryDate() {
+  return $("o-date")?.value || "";
+}
+
+function cuposForDish(numericId) {
+  if (!Object.prototype.hasOwnProperty.call(PRODUCTION_STOCK, numericId)) {
+    return null;
+  }
+  return PRODUCTION_STOCK[numericId];
+}
+
+function cuposLabelForProduct(product) {
+  const cupos = cuposForDish(product.numeric_id);
+  const date = getDeliveryDate();
+  if (!date) {
+    return gettext("Selecciona fecha de entrega");
+  }
+  if (cupos === null) {
+    return gettext("Sin plan para esta fecha");
+  }
+  if (cupos === 0) {
+    return gettext("Sin cupos disponibles");
+  }
+  return formatNamed(gettext("Cupos disponibles: %(cupos)s"), { cupos });
+}
+
+async function loadProductionForOrderDate() {
+  const date = getDeliveryDate();
+  PRODUCTION_STOCK = {};
+  if (!date || !AUTH) {
+    renderOrderGrid();
+    return;
+  }
+
+  const response = await api(`/api/production/?date=${encodeURIComponent(date)}`);
+  if (response.ok && Array.isArray(response.data)) {
+    response.data.forEach((record) => {
+      PRODUCTION_STOCK[record.dish_id] = record.available_units;
+    });
+  }
+  renderOrderGrid();
+}
+
+async function onDeliveryDateChange() {
+  await loadProductionForOrderDate();
+}
+
+function fillManualFromCatalog() {
+  const dishId = parseInt($("mi-id").value, 10);
+  if (Number.isNaN(dishId)) {
+    return;
+  }
+  const product = CATALOG.find((entry) => entry.numeric_id === dishId);
+  if (!product) {
+    $("mi-name").value = "";
+    $("mi-price").value = "";
+    return;
+  }
+  $("mi-name").value = product.name;
+  $("mi-price").value = product.price;
 }
 
 function renderCatalog() {
@@ -620,11 +861,11 @@ function renderCatalog() {
 
   grid.innerHTML = CATALOG.map((product) => `
     <div class="pcard">
-      <div class="pcard-id">${gettext("dish_id numérico")}: <strong>${esc(product.numeric_id)}</strong></div>
+      <div class="pcard-id">${gettext("Código")}: <strong>${esc(product.numeric_id)}</strong></div>
       <div class="pcard-name">${esc(product.name)}</div>
       <div class="pcard-price">${fmt(product.price)}</div>
       <div class="pcard-desc">${esc(product.description || "")}</div>
-      <div class="pcard-stock">${formatNamed(gettext("Stock: %(stock)s uds."), { stock: product.stock })}</div>
+      <div class="pcard-stock">${formatNamed(gettext("Stock en catálogo: %(stock)s uds."), { stock: product.stock })}</div>
     </div>
   `).join("");
 }
@@ -641,23 +882,11 @@ async function searchByName() {
   try {
     const response = await api(`/api/products/by-name/?name=${encodeURIComponent(name)}`);
     if (response.ok) {
-      const product = response.data;
-      const existing = CATALOG.find((entry) => entry.product_id === String(product.product_id));
-      if (!existing) {
-        CATALOG.push({
-          numeric_id: CATALOG.length + 1,
-          product_id: String(product.product_id),
-          name: product.name,
-          price: parseFloat(product.price),
-          stock: product.stock,
-          description: product.description || "",
-        });
-      }
+      const numericId = upsertCatalogProduct(response.data);
       renderCatalog();
-      const numericId = existing?.numeric_id || CATALOG.length;
       alert_(
         "a-cat",
-        formatList(gettext('"%s" cargado. dish_id numérico asignado: %s'), [product.name, numericId]),
+        formatList(gettext('"%s" cargado. dish_id numérico asignado: %s'), [response.data.name, numericId]),
         "ok",
       );
     } else {
@@ -690,15 +919,7 @@ async function addProduct() {
     });
     if (response.ok) {
       const product = response.data;
-      const numericId = CATALOG.length + 1;
-      CATALOG.push({
-        numeric_id: numericId,
-        product_id: String(product.product_id),
-        name: product.name,
-        price: parseFloat(product.price),
-        stock: product.stock,
-        description: product.description || "",
-      });
+      const numericId = upsertCatalogProduct(product);
       renderCatalog();
       toggleInlay("inlay-np");
       ["np-name", "np-price", "np-stock", "np-desc"].forEach((id) => {
@@ -726,12 +947,15 @@ function renderOrderGrid() {
 
   grid.innerHTML = CATALOG.map((product) => {
     const inCart = CART[product.numeric_id];
+    const cupos = cuposForDish(product.numeric_id);
+    const unavailable = !getDeliveryDate() || cupos === null || cupos === 0;
+    const clickAttr = unavailable ? "" : ` onclick="addToCart(${product.numeric_id})"`;
     return `
-      <div class="pcard${inCart ? " sel" : ""}" onclick="addToCart(${product.numeric_id})">
-        <div class="pcard-id">${gettext("dish_id")}: ${product.numeric_id}</div>
+      <div class="pcard${inCart ? " sel" : ""}${unavailable ? " pcard-off" : ""}"${clickAttr}>
+        <div class="pcard-id">${gettext("Código")}: ${product.numeric_id}</div>
         <div class="pcard-name">${esc(product.name)}</div>
         <div class="pcard-price">${fmt(product.price)}</div>
-        <div class="pcard-stock">${formatNamed(gettext("Stock: %(stock)s"), { stock: product.stock })}</div>
+        <div class="pcard-stock">${esc(cuposLabelForProduct(product))}</div>
         ${inCart ? `<div class="pcard-badge">${formatNamed(gettext("En carrito (%(quantity)s)"), { quantity: inCart.qty })}</div>` : ""}
       </div>
     `;
@@ -743,6 +967,41 @@ function addToCart(numericId) {
   if (!product) {
     return;
   }
+
+  const deliveryDate = getDeliveryDate();
+  if (!deliveryDate) {
+    alert_("a-order", gettext("Selecciona primero la fecha de entrega"));
+    return;
+  }
+
+  const cupos = cuposForDish(numericId);
+  if (cupos === null) {
+    alert_(
+      "a-order",
+      formatList(
+        gettext("No hay plan del día para el código %(id)s el %(date)s. Pide al chef que cree producción."),
+        [numericId, deliveryDate],
+      ),
+    );
+    return;
+  }
+  if (cupos === 0) {
+    alert_("a-order", gettext("Sin cupos disponibles para esta fecha."));
+    return;
+  }
+
+  const nextQty = (CART[numericId]?.qty || 0) + 1;
+  if (nextQty > cupos) {
+    alert_(
+      "a-order",
+      formatNamed(
+        gettext("Solo hay %(cupos)s cupo(s) disponible(s) para esta fecha."),
+        { cupos },
+      ),
+    );
+    return;
+  }
+
   if (CART[numericId]) {
     CART[numericId].qty += 1;
   } else {
@@ -753,13 +1012,21 @@ function addToCart(numericId) {
 }
 
 function addManualItem() {
+  fillManualFromCatalog();
   const dishId = parseInt($("mi-id").value, 10);
-  const name = $("mi-name").value.trim() || formatList(gettext("Plato #%s"), [dishId]);
   const quantity = parseInt($("mi-qty").value, 10) || 1;
   const price = parseFloat($("mi-price").value);
+  const name = $("mi-name").value.trim() || formatList(gettext("Plato #%s"), [dishId]);
 
-  if (Number.isNaN(dishId) || Number.isNaN(price)) {
-    alert_("a-order", gettext("Dish ID y precio son obligatorios"));
+  if (Number.isNaN(dishId)) {
+    alert_("a-order", gettext("Indica el código del plato"));
+    return;
+  }
+  if (Number.isNaN(price)) {
+    alert_(
+      "a-order",
+      gettext("No hay precio en el menú para ese código. Carga el plato en Platos y menú primero."),
+    );
     return;
   }
 
@@ -777,10 +1044,25 @@ function changeQty(id, delta) {
   if (!CART[id]) {
     return;
   }
-  CART[id].qty += delta;
-  if (CART[id].qty <= 0) {
+  const nextQty = CART[id].qty + delta;
+  if (nextQty <= 0) {
     delete CART[id];
+    renderCart();
+    renderOrderGrid();
+    return;
   }
+  const cupos = cuposForDish(id);
+  if (cupos !== null && nextQty > cupos) {
+    alert_(
+      "a-order",
+      formatNamed(
+        gettext("Solo hay %(cupos)s cupo(s) disponible(s) para esta fecha."),
+        { cupos },
+      ),
+    );
+    return;
+  }
+  CART[id].qty = nextQty;
   renderCart();
   renderOrderGrid();
 }
@@ -866,6 +1148,7 @@ async function placeOrder() {
         formatList(gettext("Pedido #%s"), [response.data.order_id]),
       );
       $("lookup-id").value = response.data.order_id;
+      await loadProductionForOrderDate();
     } else if (response.status === 409) {
       setResult(
         "⚠️",
@@ -983,6 +1266,16 @@ async function doValidateStock() {
     const response = await api(`/api/orders/${CUR_ORDER}/validate-stock/`);
     if (response.ok) {
       alert_("a-action", response.data?.detail || gettext("Stock validado correctamente."), "ok");
+    } else if (response.status === 409) {
+      alert_(
+        "a-action",
+        errorMessage(
+          response.data,
+          gettext(
+            "El plan del día no cubre este pedido (fecha de entrega o cupos ajustados después de crear la orden).",
+          ),
+        ),
+      );
     } else {
       alert_("a-action", errorMessage(response.data, gettext("Error al validar")));
     }
@@ -1041,7 +1334,6 @@ function renderProdTable(records) {
     <table>
       <thead>
         <tr>
-          <th>${gettext("ID prod.")}</th>
           <th>${gettext("Dish ID")}</th>
           <th>${gettext("Fecha")}</th>
           <th>${gettext("Cupos")}</th>
@@ -1058,7 +1350,7 @@ function renderProdTable(records) {
                 : units < 10
                   ? formatList(gettext("%s - Bajo"), [units])
                   : formatList(gettext("%s - Disponible"), [units]);
-            return `<tr><td>${record.production_id}</td><td>${record.dish_id}</td><td>${record.date}</td><td><span class="pb ${badgeClass}">${label}</span></td></tr>`;
+            return `<tr><td>${record.dish_id}</td><td>${record.date}</td><td><span class="pb ${badgeClass}">${label}</span></td></tr>`;
           })
           .join("")}
       </tbody>
@@ -1089,6 +1381,9 @@ async function createProd() {
         formatList(gettext("Se registraron %s cupos para dish_id %s el %s."), [units, dish, date]),
         "ok",
       );
+      if (date === getDeliveryDate()) {
+        await loadProductionForOrderDate();
+      }
       $("pc-dish").value = "";
       $("pc-units").value = "";
       await loadProd();
@@ -1125,6 +1420,15 @@ async function adjustProd() {
   } finally {
     setLoading("adjust-prod-btn", false);
   }
+}
+
+if (AUTH) {
+  void onLogin().catch((error) => {
+    console.error("init onLogin:", error);
+    AUTH = null;
+    sessionStorage.removeItem("casachef_auth");
+    doLogout();
+  });
 }
 
 </script>

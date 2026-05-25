@@ -8,6 +8,9 @@ class ProductionRepository(ABC):
         pass
 
     @abstractmethod
-    def check_stock(self, dish_id: int, quantity: int) -> bool:
-        """Verifica sin reservar si hay stock disponible. Retorna True si hay suficiente."""
+    def check_stock(self, dish_id: int, date: str, quantity: int) -> bool:
+        """Verifica cupos en la fecha indicada (sin reservar).
+
+        Para pedidos ya creados, la reserva previa se suma a los cupos restantes.
+        """
         pass

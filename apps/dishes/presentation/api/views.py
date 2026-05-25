@@ -20,9 +20,17 @@ def _build_service() -> ProductService:
 
 
 class ProductRegisterView(APIView):
-    """POST /api/products/ — Registra un producto en el catálogo."""
+    """GET/POST /api/products/ — Lista o registra productos en el catálogo."""
 
     permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        service = _build_service()
+        products = service.list_products()
+        return Response(
+            ProductOutputSerializer(products, many=True).data,
+            status=status.HTTP_200_OK,
+        )
 
     def post(self, request):
         serializer = RegisterProductSerializer(data=request.data)

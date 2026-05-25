@@ -87,6 +87,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost',
+    'http://127.0.0.1',
+    'http://3.89.172.49',
+]
+
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -133,6 +139,11 @@ TIME_ZONE = "America/Bogota"
 USE_I18N = True
 
 USE_TZ = True
+
+LANGUAGES = [
+    ('es', 'Español'),
+    ('en', 'English'),
+]
 
 LOCALE_PATHS = [BASE_DIR / "locale"]
 
