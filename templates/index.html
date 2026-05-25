@@ -187,6 +187,7 @@ code{font-family:monospace;background:rgba(59,35,20,.07);padding:1px 5px;border-
   <div class="tab" data-panel="panel-catalog" data-roles="chef" onclick="showTab(this)">🍽 {% trans "Platos y menú" %}</div>
   <div class="tab" data-panel="panel-production" data-roles="chef,operations" onclick="showTab(this)">📊 {% trans "Plan del día" %}</div>
   <div class="tab" data-panel="panel-lookup" data-roles="customer,chef,operations" onclick="showTab(this)">🔍 {% trans "Buscar pedido" %}</div>
+  <div class="tab" data-panel="panel-ally" data-roles="customer,chef,operations" onclick="showTab(this)">{% trans "Endpoint Equipo Aliado" %}</div>
 </div>
 
 <div id="panel-login" class="panel active">
@@ -369,6 +370,24 @@ code{font-family:monospace;background:rgba(59,35,20,.07);padding:1px 5px;border-
     </div>
   </div>
 </div>
+<div id="panel-ally" class="panel">
+  <div class="card">
+    <div class="card-header">
+      {% trans "Servicio del equipo aliado" %}
+    </div>
+    <p style="font-size:13px;color:rgba(59,35,20,.55);margin-bottom:18px">
+      {% trans "Información en tiempo real consumida desde el endpoint público del equipo aliado." %}
+    </p>
+    <div id="ally-alert" class="alert"></div>
+    <button class="btn btn-primary btn-sm" id="ally-btn" onclick="loadAllyInfo()">
+      {% trans "Consultar servicio aliado" %}
+    </button>
+    <div id="ally-result" style="margin-top:18px;display:none">
+      <pre id="ally-json" style="background:rgba(59,35,20,.05);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:12px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--ink)"></pre>
+    </div>
+  </div>
+</div>
+
 
 </div>
 
@@ -1450,6 +1469,22 @@ async function adjustProd() {
     }
   } finally {
     setLoading("adjust-prod-btn", false);
+  }
+}
+
+async function loadAllyInfo() {
+  clearAlert("ally-alert");
+  setLoading("ally-btn", true);
+  try {
+    const response = await api("/api/integrations/ally-system-info/");
+    if (response.ok) {
+      $("ally-result").style.display = "block";
+      $("ally-json").textContent = JSON.stringify(response.data, null, 2);
+    } else {
+      alert_("ally-alert", errorMessage(response.data, gettext("Servicio aliado no disponible")));
+    }
+  } finally {
+    setLoading("ally-btn", false);
   }
 }
 

@@ -11,6 +11,11 @@ from apps.integrations.application.clients.microservice_client import (
     RecommendationsMicroserviceClient,
 )
 
+from apps.integrations.application.clients.ally_client import (
+    AllyServiceUnavailable,
+    AllySystemInfoClient,
+)
+
 
 def _client() -> RecommendationsMicroserviceClient:
     return RecommendationsMicroserviceClient()
@@ -86,3 +91,15 @@ class IntegrationSummaryProxyView(APIView):
             return Response(_client().summary(_query_params(request)), status=status.HTTP_200_OK)
         except MicroserviceUnavailable as exc:
             return Response({"error": str(exc)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+class AllySystemInfoView(APIView):
+    """GET /api/integrations/ally-system-info/ — Consume el servicio del equipo aliado."""
+
+    def get(self, request):
+        try:
+            return Response(AllySystemInfoClient().get_system_info(), status=status.HTTP_200_OK)
+        except AllyServiceUnavailable as exc:
+            return Response(
+                {"status": "unavailable", "error": str(exc)},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
