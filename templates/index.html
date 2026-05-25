@@ -659,19 +659,14 @@ async function doRegister() {
 
   setLoading("register-btn", true);
   try {
-    const response = await fetch(`${BASE()}/api/users/register/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-      credentials: "include",
-    });
-    const data = await response.json().catch(() => ({}));
+    const response = await api("/api/users/register/", "POST", { email, password });
     if (response.ok) {
+      const data = response.data;
       alert_("a-login", gettext("Cuenta creada. Ahora inicia sesión."), "ok");
       $("l-email").value = email;
       $("l-pass").value = password;
     } else {
-      alert_("a-login", errorMessage(data));
+      alert_("a-login", errorMessage(response.data));
     }
   } catch (error) {
     alert_("a-login", formatList(gettext("Error de red: %s"), [error.message]));
